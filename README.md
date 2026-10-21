@@ -31,8 +31,8 @@ Start by choosing one of six playable shinobi, then enter the camp:
 | **Aster** | Mage | Arcane bolts, frost, meteors, a singularity, Starfall Requiem |
 
 Each hero has six techniques: one movement dash, four regular actives, and one signature
-**Execution**. Your four-slot loadout includes the Execution, which is auto-equipped at the
-start of a run; choose the other three around it in the camp.
+**Execution**. The Execution unlocks at level 6. Once unlocked, it is auto-equipped in the
+four-slot loadout; choose the other three techniques around it in the camp.
 
 Auto-attacks are hero-specific: Kaito and Mira strike in melee, Ren throws embers, Sora lashes
 with silk, Yuki fires arrows from long range, and Aster casts arcane bolts from range.
@@ -40,6 +40,7 @@ with silk, Yuki fires arrows from long range, and Aster casts arcane bolts from 
 ### Run structure
 
 - **7 chapters**, each with **4 waves + a boss**
+- Defeat a chapter boss to unlock the next chapter on that hero's map
 - Waves hold 8–12 initial enemies plus a reinforcement pack, for roughly 13–21 enemies per wave; elites appear in the last wave
 - After a wave, a short **wave-cleared** beat plays, then the upgrade cards open
 - After the boss falls, time slows for a **boss-death sequence** with fireworks and a chapter-clear banner
@@ -48,7 +49,7 @@ with silk, Yuki fires arrows from long range, and Aster casts arcane bolts from 
 ### Camp
 
 - **Campaign** — the chapter map, boss preview, clear count, best rank, first-clear reward, and Deploy
-- **Arsenal** — upgrade techniques with skill points, arrange your four-slot loadout around the auto-equipped Execution, view passives and evolutions
+- **Arsenal** — upgrade techniques with skill points, arrange your four-slot loadout around the Execution once it unlocks at level 6, view passives and evolutions
 - **Shop** — hero skins, blade skins, and early technique unlocks
 - **Evolve** — choose one of two permanent paths at level 10
 - **Change Hero** — return to the character-select screen
@@ -68,10 +69,11 @@ with silk, Yuki fires arrows from long range, and Aster casts arcane bolts from 
 Hits fill the **rage column** on the left. When it is full, press **R** to transform.
 While raging, press **R** again to spend the Rage Art, a hero-specific finisher.
 
-Press **F** for the signature **Execution** once it is charged. It starts empty each run and
-fills from hits and kills. At 100% it freezes the arena for a cinematic finisher: normal enemies
-are destroyed, bosses take heavy damage and are stunned, and the HUD returns when the animation
-ends. The Execution then resets to empty and has a long cooldown.
+The signature **Execution** unlocks at level 6, so the early chapters are fought without it.
+Once unlocked, press **F** when charged. It starts empty each run and fills from hits and kills.
+At 100% it freezes the arena for a cinematic finisher: normal enemies are destroyed, bosses take
+heavy damage and are stunned, and the HUD returns when the animation ends. The Execution then
+resets to empty and has a long cooldown.
 
 ### Per-hero progress
 
@@ -99,12 +101,13 @@ the looping animation.
 
 ### Progression
 
-- XP curve: `round(80 × 1.22^(level − 1))`
+- XP curve: `round(150 × 1.3^(level − 1))`
 - Skill points: +1 per level; each skill has five ranks
 - Skill auto-unlock levels: **1 / 3 / 5 / 8 / 10**
-- Chapter gates: **1 / 3 / 6 / 10 / 15 / 18 / 22**
+- Execution unlock: **level 6**
 - Evolution at level 10, permanent per hero
 - Max level 60
+- **Chapters unlock by defeating the previous chapter's boss**, not by player level
 - All level, XP, coin, attribute, skill-point, chapter, and stats progression is per hero
 
 ### Five attributes, twelve stars each

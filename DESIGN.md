@@ -651,19 +651,19 @@ upgrade on the character and on the battlefield.
 | **Yuki** | Ranger | +15% projectile damage | Wind Step, Piercing Arrow, Rain of Arrows, Hunter's Volley, Gale Trap, Skyfall: Final Hunt | Stormfeather / Deadeye |
 | **Aster** | Mage | +25% energy regen | Blink, Arcane Bolt, Frost Nova, Meteor, Singularity, Starfall Requiem | Archmage / Chronomancer |
 
-Each hero has one dash, four regular actives, and one signature **Execution**. A run carries
-four active slots; the Execution is auto-equipped, leaving three regular techniques to choose
-in the Arsenal. Dash is always fixed to Space. Evolutions are permanent per hero and stored in
-`state.evolutions`.
+Each hero has one dash, four regular actives, and one signature **Execution**. The Execution
+unlocks at level 6. Once unlocked, a run carries four active slots and the Execution is
+auto-equipped, leaving three regular techniques to choose in the Arsenal. Dash is always fixed
+to Space. Evolutions are permanent per hero and stored in `state.evolutions`.
 
 Auto-attacks are hero-specific: Kaito and Mira use melee arcs; Ren throws embers; Sora lashes
 with silk; Yuki fires arrows from 380px; Aster casts arcane bolts from 330px.
 
 #### Execution
 
-Every hero has a cinematic finisher bound to **F** (and to its equipped slot). It starts each
-run at 0% charge and fills from hits and kills; it cannot be used immediately. At 100% it spends
-60 energy, enters a 30s cooldown, and:
+Every hero's cinematic finisher unlocks at **level 6** and is bound to **F** (and its equipped
+slot). Once unlocked it starts each run at 0% charge and fills from hits and kills; it cannot be
+used immediately. At 100% it spends 60 energy, enters a 30s cooldown, and:
 
 - freezes the arena and hides the HUD
 - plays a letterboxed hero-specific cinematic with a title card and kill count
@@ -714,19 +714,20 @@ In-game, every weapon is drawn from the grip hand with a visible glove.
 
 ### 23.4 Seven chapters, four waves, seven bosses
 
-| # | Chapter | Unlock | Tier | Boss |
+| # | Chapter | Opens after | Tier | Boss |
 |---|---|---|---|---|
-| 1 | Bamboo Forest | 1 | 1.0 | Training Master |
-| 2 | Abandoned Village | 3 | 1.3 | Bandit Chief |
-| 3 | Crystal Caverns | 6 | 1.6 | Stone Guardian |
-| 4 | Ember Volcano | 10 | 2.0 | Fire Oni |
-| 5 | Shadow Fortress | 15 | 2.5 | Shadow King |
-| 6 | Sunken Shrine | 18 | 3.0 | Tide Empress |
-| 7 | Sky Citadel | 22 | 3.6 | Storm Emperor |
+| 1 | Bamboo Forest | — | 1.0 | Training Master |
+| 2 | Abandoned Village | Training Master | 1.3 | Bandit Chief |
+| 3 | Crystal Caverns | Bandit Chief | 1.6 | Stone Guardian |
+| 4 | Ember Volcano | Stone Guardian | 2.0 | Fire Oni |
+| 5 | Shadow Fortress | Fire Oni | 2.5 | Shadow King |
+| 6 | Sunken Shrine | Shadow King | 3.0 | Tide Empress |
+| 7 | Sky Citadel | Tide Empress | 3.6 | Storm Emperor |
 
-Each chapter has **four waves** of 8-12 initial enemies plus a reinforcement pack, for roughly
-13-21 enemies per wave. Reinforcements arrive a few seconds into the wave, and the fourth wave
-contains elites. The run
+Chapters open per hero by defeating the previous chapter's boss; player level no longer gates
+the map. Each chapter has **four waves** of 8-12 initial enemies plus a reinforcement pack, for
+roughly 13-21 enemies per wave. Reinforcements arrive a few seconds into the wave, and the fourth
+wave contains elites. The run
 then moves to a boss intermission. Bosses use telegraphed slams, fans, charges, rings, spikes,
 meteors, and blinks; enrage below ~40% health.
 

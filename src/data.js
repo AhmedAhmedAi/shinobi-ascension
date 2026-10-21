@@ -8,8 +8,8 @@ export const SAVE_VERSION = 3;
 
 export const WORLD = { w: 2200, h: 1600 };
 
-export const XP_BASE = 80;
-export const XP_GROWTH = 1.22;
+export const XP_BASE = 150;
+export const XP_GROWTH = 1.3;
 
 export function xpForLevel(level) {
   return Math.round(XP_BASE * Math.pow(XP_GROWTH, level - 1));
@@ -256,7 +256,7 @@ export const SKILLS = [
   },
   {
     id: 'k_ult', hero: 'kaito', name: 'Thunderfall: Judgment', icon: 'execution', element: 'storm', color: '#39d7ff',
-    slot: 'active', unlock: 1, cd: 30, energy: 60, type: 'execution', stun: 2.5,
+    slot: 'active', unlock: 6, cd: 30, energy: 60, type: 'execution', stun: 2.5,
     desc: 'A cinematic storm executes every lesser foe in the arena. Bosses are left stunned and badly wounded.',
     rankNote: '+15% boss damage · -6% cooldown',
   },
@@ -291,7 +291,7 @@ export const SKILLS = [
   },
   {
     id: 'm_bulwark', hero: 'mira', name: 'Worldbreaker', icon: 'execution', element: 'iron', color: '#ffb347',
-    slot: 'active', unlock: 1, cd: 30, energy: 60, type: 'execution', stun: 2.5,
+    slot: 'active', unlock: 6, cd: 30, energy: 60, type: 'execution', stun: 2.5,
     desc: 'Mira calls the mountain down. Lesser foes are shattered; bosses are stunned and badly wounded.',
     rankNote: '+15% boss damage · -6% cooldown',
   },
@@ -326,7 +326,7 @@ export const SKILLS = [
   },
   {
     id: 'r_smoke', hero: 'ren', name: 'Pyre Requiem', icon: 'execution', element: 'fire', color: '#ff6b3d',
-    slot: 'active', unlock: 1, cd: 30, energy: 60, type: 'execution', stun: 2.5,
+    slot: 'active', unlock: 6, cd: 30, energy: 60, type: 'execution', stun: 2.5,
     desc: 'Ren turns the arena into a funeral pyre. Lesser foes are consumed; bosses burn and stagger.',
     rankNote: '+15% boss damage · -6% cooldown',
   },
@@ -368,7 +368,7 @@ export const SKILLS = [
   },
   {
     id: 's_pulse', hero: 'sora', name: 'Silk Requiem', icon: 'execution', element: 'silk', color: '#c4b5fd',
-    slot: 'active', unlock: 1, cd: 30, energy: 60, type: 'execution', stun: 2.5,
+    slot: 'active', unlock: 6, cd: 30, energy: 60, type: 'execution', stun: 2.5,
     desc: 'Sora pulls every thread at once. Lesser foes are cut down; bosses are bound and badly wounded.',
     rankNote: '+15% boss damage · -6% cooldown',
   },
@@ -424,7 +424,7 @@ export const SKILLS = [
   },
   {
     id: 'y_skyfall', hero: 'yuki', name: 'Skyfall: Final Hunt', icon: 'execution', element: 'wind', color: '#63e6a4',
-    slot: 'active', unlock: 1, cd: 30, energy: 60, type: 'execution', stun: 2.5,
+    slot: 'active', unlock: 6, cd: 30, energy: 60, type: 'execution', stun: 2.5,
     desc: 'Yuki empties the sky. Arrows find every lesser foe; bosses are pinned and badly wounded.',
     rankNote: '+15% boss damage · -6% cooldown',
   },
@@ -459,7 +459,7 @@ export const SKILLS = [
   },
   {
     id: 'a_barrier', hero: 'aster', name: 'Starfall Requiem', icon: 'execution', element: 'arcane', color: '#6ea8ff',
-    slot: 'active', unlock: 1, cd: 30, energy: 60, type: 'execution', stun: 2.5,
+    slot: 'active', unlock: 6, cd: 30, energy: 60, type: 'execution', stun: 2.5,
     desc: 'Aster opens the sky. Lesser foes are erased; bosses are crushed under a falling star.',
     rankNote: '+15% boss damage · -6% cooldown',
   },

@@ -52,8 +52,9 @@ const hudCache = new Map();
 const joystick = { x: 0, y: 0, active: false, id: null, originX: 0, originY: 0 };
 
 // Five-slot arc: four equipped techniques plus the fixed dash.
+const WORLD_ZOOM = 0.8;
 const SKILL_LAYOUT = {
-  dash: { right: 190, bottom: 16, size: 46 },
+  dash: { right: 188, bottom: 12, size: 56 },
   slot0: { right: 150, bottom: 70, size: 56 },
   slot1: { right: 100, bottom: 118, size: 58 },
   slot2: { right: 38, bottom: 132, size: 62 },
@@ -345,6 +346,10 @@ function ensureUnlockedSkills(s, announce) {
   for (const h of HEROES) {
     const p = s.heroProgress[h.id] || (s.heroProgress[h.id] = defaultHeroProgress());
     for (const sk of SKILLS_BY_HERO[h.id]) {
+      if (sk.type === 'execution' && p.level < sk.unlock) {
+        if (s.skillRanks[sk.id]) s.skillRanks[sk.id] = 0;
+        continue;
+      }
       if (p.level >= sk.unlock && !(s.skillRanks[sk.id] > 0)) {
         s.skillRanks[sk.id] = 1;
         if (announce && h.id === s.hero) {
@@ -360,6 +365,22 @@ function ensureUnlockedSkills(s, announce) {
 
 function getHero() {
   return heroById(state.hero);
+}
+
+function previousZoneFor(zone) {
+  if (!zone) return null;
+  const idx = ZONES.findIndex((z) => z.id === zone.id);
+  return idx > 0 ? ZONES[idx - 1] : null;
+}
+
+function isZoneUnlocked(zone) {
+  if (!zone) return false;
+  const prev = previousZoneFor(zone);
+  return !prev || (state.zoneClears[prev.id] || 0) > 0;
+}
+
+function highestUnlockedZone() {
+  return [...ZONES].reverse().find((z) => isZoneUnlocked(z)) || ZONES[0];
 }
 
 function getEvolution() {
@@ -728,9 +749,6 @@ function onLevelUp() {
     toast('Evolution available in the <b>Evolve</b> tab.', 'gold', iconSVG('static', 16));
   }
 
-  const zone = ZONES.find((z) => z.unlock === lvl);
-  if (zone) toast(`New chapter open: <b>${zone.name}</b>`, 'green', iconSVG(zone.icon, 16));
-
   if (scene === 'run' && run && run.player) {
     const st = getStats();
     run.player.maxHp = st.maxHp;
@@ -823,7 +841,7 @@ function renderHeroSelect() {
   const skills = SKILLS_BY_HERO[hero.id].filter((sk) => sk.slot === 'active');
   $('selected-skills').innerHTML = skills.map((sk) => {
     const unlocked = skillRank(sk.id) > 0;
-    return `<div class="preview-skill ${unlocked ? '' : 'locked'} ${sk.type === 'execution' ? 'execution' : ''}" title="${sk.name}">
+    return `<div class="preview-skill ${unlocked ? '' : 'locked'} ${sk.type === 'execution' && unlocked ? 'execution' : ''}" title="${sk.name}${unlocked ? '' : ` · unlocks at level ${sk.unlock}`}">
       ${skillArt(sk, 38)}
       <span>${sk.name}</span>
     </div>`;
@@ -887,6 +905,7 @@ function openDojo(tab) {
   setHudVisible(false);
   if (tab) activeTab = tab;
   if (!ZONES.some((z) => z.id === selectedZone)) selectedZone = 'forest';
+  if (!isZoneUnlocked(zoneById(selectedZone))) selectedZone = highestUnlockedZone().id;
   if (!state.loadout[state.hero]) fillLoadoutFor(state, state.hero);
   showScreen('screen-dojo');
   renderDojo();
@@ -949,7 +968,8 @@ function renderDojoHeader() {
 
 function renderMap() {
   const nodes = ZONES.map((z) => {
-    const open = state.level >= z.unlock;
+    const open = isZoneUnlocked(z);
+    const prev = previousZoneFor(z);
     const clears = state.zoneClears[z.id] || 0;
     const rank = state.stats.bestRank[z.id] || '';
     const cls = [
@@ -958,9 +978,9 @@ function renderMap() {
       clears ? 'cleared' : '',
       selectedZone === z.id ? 'selected' : '',
     ].join(' ');
-    const sub = !open ? `LV ${z.unlock}` : clears ? `CLEARED ×${clears}${rank ? ` · ${rank}` : ''}` : 'OPEN';
+    const sub = !open ? 'LOCKED' : clears ? `CLEARED ×${clears}${rank ? ` · ${rank}` : ''}` : 'OPEN';
     return `
-      <button class="${cls}" style="left:${z.map.x}%;top:${z.map.y}%" data-zone="${z.id}" aria-label="${z.name}${open ? '' : `, locked until level ${z.unlock}`}">
+      <button class="${cls}" style="left:${z.map.x}%;top:${z.map.y}%" data-zone="${z.id}" aria-label="${z.name}${open ? '' : `, clear ${prev ? prev.name : 'the previous chapter'} first`}">
         <span class="node-icon">${iconSVG(z.icon, 22)}</span>
         <span class="node-label">${z.name}</span>
         <span class="node-sub">${sub}</span>
@@ -976,15 +996,18 @@ function renderMap() {
 function renderMapDetail() {
   const z = zoneById(selectedZone);
   const idx = ZONES.findIndex((x) => x.id === z.id);
-  const open = state.level >= z.unlock;
+  const open = isZoneUnlocked(z);
+  const prev = previousZoneFor(z);
   const clears = state.zoneClears[z.id] || 0;
   const rank = state.stats.bestRank[z.id] || '—';
   const boss = ENEMIES[z.boss];
+  const prevBoss = prev ? ENEMIES[prev.boss] : null;
   const hero = getHero();
   const tags = z.tags.map((t) => `<span>${t}</span>`).join('');
+  const unlockLabel = !prev ? 'OPEN' : open ? 'OPEN' : `Defeat ${prevBoss.name}`;
   const rows = `
     <div class="detail-rows">
-      <div><span>Recommended</span><b>Lv. ${z.unlock}</b></div>
+      <div><span>Unlock</span><b>${unlockLabel}</b></div>
       <div><span>Boss</span><b>${boss.name}</b></div>
       <div><span>Waves</span><b>${z.waves.length} + boss</b></div>
       <div><span>Clears</span><b>${clears}</b></div>
@@ -994,7 +1017,7 @@ function renderMapDetail() {
 
   const action = open
     ? `<button class="primary detail-enter" data-enter="${z.id}">DEPLOY ${hero.name.toUpperCase()}</button>`
-    : `<div class="detail-lock">Reach level <b>${z.unlock}</b> to open this chapter.<br>You are level ${state.level}.</div>`;
+    : `<div class="detail-lock">Defeat <b>${prevBoss.name}</b> in <b>${prev.name}</b> to open this chapter.</div>`;
 
   $('map-detail').innerHTML = `
     <div class="detail-watermark">${iconSVG(z.icon, 150)}</div>
@@ -1057,7 +1080,7 @@ function renderSkills() {
         <div>
           <div class="skill-head">
             <h3>${sk.name}</h3>
-            <span class="skill-rank">${isDash ? 'DASH' : sk.type === 'execution' ? 'EXECUTION' : (unlocked ? `RANK ${rank}` : `LV. ${sk.unlock}`)}</span>
+            <span class="skill-rank">${isDash ? 'DASH' : sk.type === 'execution' ? (unlocked ? 'EXECUTION' : `LV. ${sk.unlock}`) : (unlocked ? `RANK ${rank}` : `LV. ${sk.unlock}`)}</span>
           </div>
           <p class="skill-desc">${sk.desc}</p>
           <p class="skill-lock">${unlocked ? sk.rankNote : `Unlocks at level ${sk.unlock}, or buy it in the shop`}</p>
@@ -1165,8 +1188,10 @@ function renderShop() {
     const owned = rank > 0;
     const price = skillPrice(sk);
     const canBuy = state.coins >= price;
+    const levelLocked = sk.type === 'execution' && state.level < sk.unlock;
     let action;
-    if (owned) action = `<button class="shop-buy" data-focus-skill="${sk.id}" type="button">UPGRADE IN ARSENAL</button>`;
+    if (levelLocked) action = `<button class="shop-buy" disabled type="button">LV. ${sk.unlock}</button>`;
+    else if (owned) action = `<button class="shop-buy" data-focus-skill="${sk.id}" type="button">UPGRADE IN ARSENAL</button>`;
     else action = `<button class="shop-buy" data-buy-technique="${sk.id}" ${canBuy ? '' : 'disabled'} type="button">UNLOCK</button>`;
     return `<article class="shop-card ${owned ? 'equipped' : ''}">
       <div class="shop-card-art">${skillArt(sk, 84)}</div>
@@ -1290,6 +1315,11 @@ function buyAttribute(id, source = 'dojo') {
 function buyTechnique(id) {
   const sk = skillById(id);
   if (!sk || sk.hero !== state.hero || sk.slot !== 'active' || skillRank(id) > 0) return;
+  if (sk.type === 'execution' && state.level < sk.unlock) {
+    toast(`<b>${sk.name}</b> unlocks at level ${sk.unlock}.`, '', iconSVG('lock', 16));
+    audio.error();
+    return;
+  }
   const price = skillPrice(sk);
   if (state.coins < price) {
     audio.error();
@@ -1556,8 +1586,9 @@ function nextWave() {
 
 function startRun(zoneId) {
   const zone = zoneById(zoneId);
-  if (state.level < zone.unlock) {
-    toast(`<b>${zone.name}</b> opens at level ${zone.unlock}.`, '', iconSVG('lock', 16));
+  if (!isZoneUnlocked(zone)) {
+    const prev = previousZoneFor(zone);
+    toast(`Clear <b>${prev ? prev.name : 'the previous chapter'}</b> first to open this chapter.`, '', iconSVG('lock', 16));
     audio.error();
     return;
   }
@@ -1692,8 +1723,8 @@ function startRun(zoneId) {
   updateTouchUI();
   showTouchHint();
 
-  camera.x = camAxis(p.x, view.w, WORLD.w);
-  camera.y = camAxis(p.y, view.h, WORLD.h);
+  camera.x = camAxis(p.x, view.w / WORLD_ZOOM, WORLD.w);
+  camera.y = camAxis(p.y, view.h / WORLD_ZOOM, WORLD.h);
 
   spawnWave(1);
 }
@@ -3867,8 +3898,8 @@ function updateShake(dt) {
 
 function updateCamera(dt) {
   const p = run.player;
-  const tx = camAxis(p.x, view.w, WORLD.w);
-  const ty = camAxis(p.y, view.h, WORLD.h);
+  const tx = camAxis(p.x, view.w / WORLD_ZOOM, WORLD.w);
+  const ty = camAxis(p.y, view.h / WORLD_ZOOM, WORLD.h);
   const k = 1 - Math.exp(-9 * dt);
   camera.x = lerp(camera.x, tx, k);
   camera.y = lerp(camera.y, ty, k);
@@ -4073,11 +4104,14 @@ function render() {
   const sx = shake > 0 ? rand(-shake, shake) : 0;
   const sy = shake > 0 ? rand(-shake, shake) : 0;
 
+  const vw = view.w / WORLD_ZOOM;
+  const vh = view.h / WORLD_ZOOM;
   ctx.save();
-  ctx.translate(-camera.x + sx, -camera.y + sy);
+  ctx.scale(WORLD_ZOOM, WORLD_ZOOM);
+  ctx.translate(-camera.x + sx / WORLD_ZOOM, -camera.y + sy / WORLD_ZOOM);
 
-  const bgW = Math.min(view.w, WORLD.w);
-  const bgH = Math.min(view.h, WORLD.h);
+  const bgW = Math.min(vw, WORLD.w);
+  const bgH = Math.min(vh, WORLD.h);
   const bgX = clamp(camera.x, 0, Math.max(0, WORLD.w - bgW));
   const bgY = clamp(camera.y, 0, Math.max(0, WORLD.h - bgH));
   ctx.drawImage(run.bg, bgX, bgY, bgW, bgH, bgX, bgY, bgW, bgH);
@@ -4219,8 +4253,8 @@ function drawAmbient() {
   const th = THEMES[run.zone.theme];
   const t = run.time;
   for (const a of run.ambient) {
-    if (a.x < camera.x - 30 || a.x > camera.x + view.w + 30) continue;
-    if (a.y < camera.y - 30 || a.y > camera.y + view.h + 30) continue;
+    if (a.x < camera.x - 30 || a.x > camera.x + view.w / WORLD_ZOOM + 30) continue;
+    if (a.y < camera.y - 30 || a.y > camera.y + view.h / WORLD_ZOOM + 30) continue;
     const alpha = a.alpha * (0.65 + 0.35 * Math.sin(t * 2 + a.phase));
     ctx.globalAlpha = alpha;
     ctx.fillStyle = th.particle;
@@ -7675,8 +7709,8 @@ function spawnFirework() {
   const p = run.player;
   const colors = ['#ffd166', '#ff5c6c', '#43e0ff', '#b18cff', '#63e6a4', '#ffb347'];
   const color = colors[Math.floor(Math.random() * colors.length)];
-  const x = clamp(p.x + rand(-view.w * 0.42, view.w * 0.42), 40, WORLD.w - 40);
-  const y = clamp(p.y + rand(-view.h * 0.38, view.h * 0.18), 40, WORLD.h - 40);
+  const x = clamp(p.x + rand(-view.w / WORLD_ZOOM * 0.42, view.w / WORLD_ZOOM * 0.42), 40, WORLD.w - 40);
+  const y = clamp(p.y + rand(-view.h / WORLD_ZOOM * 0.38, view.h / WORLD_ZOOM * 0.18), 40, WORLD.h - 40);
   for (let i = 0; i < 28; i++) {
     const a = rand(0, TAU);
     const s = rand(60, 300);
@@ -8455,10 +8489,8 @@ function showResult() {
   if (victory) {
     if (!nextZone) {
       note = 'All seven chapters are complete. The Broken Lands remember your name.';
-    } else if (state.level >= nextZone.unlock) {
-      note = `${nextZone.name} is open. The next chapter is ready.`;
     } else {
-      note = `${nextZone.name} opens at level ${nextZone.unlock}. Grow stronger, then return.`;
+      note = `${nextZone.name} is open. The next chapter is ready.`;
     }
   } else {
     note = 'You keep everything you earned. Return to camp, sharpen your build, and take the chapter again.';
@@ -8466,7 +8498,7 @@ function showResult() {
   $('result-note').textContent = note;
 
   const nextBtn = $('btn-next-map');
-  const nextOpen = victory && nextZone && state.level >= nextZone.unlock;
+  const nextOpen = victory && nextZone && isZoneUnlocked(nextZone);
   if (nextOpen) {
     nextBtn.classList.remove('hidden');
     nextBtn.dataset.zone = nextZone.id;
@@ -8690,8 +8722,8 @@ function resize() {
   ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
   ctx.imageSmoothingEnabled = true;
   if (run) {
-    camera.x = camAxis(run.player.x, view.w, WORLD.w);
-    camera.y = camAxis(run.player.y, view.h, WORLD.h);
+    camera.x = camAxis(run.player.x, view.w / WORLD_ZOOM, WORLD.w);
+    camera.y = camAxis(run.player.y, view.h / WORLD_ZOOM, WORLD.h);
   }
   updateTouchUI();
 }
