@@ -739,6 +739,7 @@ h1, h2, h3, p { margin: 0; }
 
 .node-icon {
   position: relative;
+  color: var(--cyan);
   display: grid;
   place-items: center;
   width: 48px;
@@ -947,6 +948,7 @@ h1, h2, h3, p { margin: 0; }
 }
 
 .skill-icon {
+  color: var(--cyan);
   width: 52px;
   height: 52px;
   border-radius: 14px;
@@ -1044,6 +1046,7 @@ h1, h2, h3, p { margin: 0; }
 }
 
 .shop-icon {
+  color: var(--gold);
   width: 46px;
   height: 46px;
   border-radius: 12px;
@@ -1133,6 +1136,7 @@ h1, h2, h3, p { margin: 0; }
 }
 
 .evo-icon {
+  color: var(--cyan);
   width: 54px;
   height: 54px;
   border-radius: 15px;
@@ -1144,6 +1148,7 @@ h1, h2, h3, p { margin: 0; }
 }
 
 .evo-card.path-b .evo-icon {
+  color: var(--violet);
   border-color: rgba(167, 139, 250, 0.3);
   background: rgba(167, 139, 250, 0.07);
 }
@@ -1606,16 +1611,16 @@ h1, h2, h3, p { margin: 0; }
   position: absolute;
   right: max(12px, env(safe-area-inset-right));
   bottom: max(12px, env(safe-area-inset-bottom));
-  display: flex;
-  align-items: flex-end;
-  gap: 7px;
+  width: 230px;
+  height: 230px;
+  pointer-events: none;
 }
 
 .skill-btn {
-  position: relative;
+  position: absolute;
   width: 56px;
   height: 56px;
-  border-radius: 14px;
+  border-radius: 50%;
   border: 1px solid rgba(57, 215, 255, 0.28);
   background:
     radial-gradient(circle at 50% 20%, rgba(57, 215, 255, 0.13), transparent 65%),
@@ -1628,19 +1633,22 @@ h1, h2, h3, p { margin: 0; }
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.4);
   transition: transform 0.1s ease, border-color 0.16s ease;
   touch-action: none;
+  pointer-events: auto;
 }
 
-.skill-btn:hover { border-color: var(--cyan); }
+.skill-btn:hover { border-color: var(--cyan); transform: scale(1.05); }
 .skill-btn:active { transform: scale(0.94); }
 
 .skill-btn.ult {
-  width: 70px;
-  height: 70px;
-  border-radius: 17px;
-  border-color: rgba(255, 200, 87, 0.4);
+  border-radius: 50%;
+  border-color: rgba(255, 200, 87, 0.45);
   background:
-    radial-gradient(circle at 50% 20%, rgba(255, 200, 87, 0.15), transparent 65%),
+    radial-gradient(circle at 50% 20%, rgba(255, 200, 87, 0.18), transparent 65%),
     rgba(12, 15, 20, 0.86);
+  box-shadow:
+    0 0 0 3px rgba(255, 200, 87, 0.08),
+    0 0 30px rgba(255, 200, 87, 0.16),
+    0 8px 22px rgba(0, 0, 0, 0.45);
 }
 
 .skill-btn.locked {
@@ -1648,15 +1656,21 @@ h1, h2, h3, p { margin: 0; }
   opacity: 0.42;
 }
 
-.skill-btn.locked::after {
-  content: "🔒";
+.skill-btn .lock-badge {
   position: absolute;
-  font-size: 15px;
-  filter: grayscale(1);
+  inset: 0;
+  display: none;
+  place-items: center;
+  color: var(--muted);
+  pointer-events: none;
 }
 
-.skill-btn .skill-glyph { font-size: 22px; line-height: 1; transform: translateY(-2px); }
-.skill-btn.ult .skill-glyph { font-size: 28px; }
+.skill-btn.locked .lock-badge { display: grid; }
+.skill-btn.locked .skill-glyph { opacity: 0.3; }
+
+.skill-btn .skill-glyph { line-height: 1; transform: translateY(-2px); }
+.skill-btn .skill-glyph svg { width: 26px; height: 26px; }
+.skill-btn.ult .skill-glyph svg { width: 30px; height: 30px; }
 
 .skill-btn .key {
   position: absolute;
@@ -1752,7 +1766,7 @@ h1, h2, h3, p { margin: 0; }
 #touch-hint {
   position: absolute;
   left: 50%;
-  bottom: calc(154px + env(safe-area-inset-bottom));
+  bottom: calc(250px + env(safe-area-inset-bottom));
   transform: translateX(-50%);
   padding: 8px 13px;
   border-radius: 999px;
@@ -1806,6 +1820,142 @@ h1, h2, h3, p { margin: 0; }
 }
 
 .modal.wide { width: min(720px, 100%); text-align: left; }
+
+.intermission {
+  max-height: min(88vh, 760px);
+  overflow-y: auto;
+}
+
+.inter-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  margin-top: 14px;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.inter-coins {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.inter-next {
+  font-size: 9px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--cyan);
+  font-weight: 800;
+}
+
+.inter-tabs {
+  display: flex;
+  gap: 4px;
+  margin: 16px 0 10px;
+  border-bottom: 1px solid var(--line);
+}
+
+.itab {
+  padding: 9px 14px;
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  font-weight: 800;
+  color: var(--muted-2);
+  border-bottom: 2px solid transparent;
+}
+
+.itab.active { color: var(--cyan); border-bottom-color: var(--cyan); }
+
+.inter-panel {
+  display: none;
+  max-height: 300px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.inter-panel.active { display: block; }
+
+.inter-panel::-webkit-scrollbar { width: 5px; }
+.inter-panel::-webkit-scrollbar-thumb { background: rgba(57, 215, 255, 0.25); border-radius: 4px; }
+
+.inter-panel .shop-row {
+  grid-template-columns: 40px minmax(0, 1fr) auto;
+  padding: 10px 12px;
+  margin-bottom: 8px;
+}
+
+.inter-panel .shop-icon { width: 40px; height: 40px; }
+.inter-panel .shop-info h3 { font-size: 12px; }
+.inter-panel .shop-info p { font-size: 10px; }
+
+.inter-skill-row {
+  display: grid;
+  grid-template-columns: 38px minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: center;
+  padding: 10px 12px;
+  margin-bottom: 8px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.inter-skill-icon {
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  border: 1px solid rgba(57, 215, 255, 0.22);
+  color: var(--cyan);
+  background: rgba(57, 215, 255, 0.04);
+}
+
+.inter-skill-icon svg { width: 20px; height: 20px; }
+
+.inter-skill-row h3 { font-size: 12px; font-weight: 800; }
+.inter-skill-row p { margin-top: 3px; font-size: 9px; color: var(--muted-2); letter-spacing: 0.08em; text-transform: uppercase; }
+
+.inter-skill-row button {
+  min-width: 88px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 1px solid rgba(57, 215, 255, 0.28);
+  background: rgba(57, 215, 255, 0.06);
+  color: var(--cyan);
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.inter-skill-row button:disabled {
+  border-color: var(--line);
+  background: rgba(255, 255, 255, 0.02);
+  color: var(--muted-2);
+}
+
+.inter-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 16px;
+}
+
+.inter-actions .primary { flex: 1 1 200px; }
+.inter-actions .ghost { flex: 0 0 auto; }
+
+.inter-actions button:disabled {
+  filter: grayscale(0.7) brightness(0.7);
+  box-shadow: none;
+}
 
 @keyframes modal-in {
   from { opacity: 0; transform: translateY(14px) scale(0.98); }
@@ -1906,7 +2056,20 @@ h1, h2, h3, p { margin: 0; }
 
 .toast.out { animation: toast-out 0.3s ease both; }
 
-.toast .t-icon { font-size: 16px; }
+.icon { display: block; flex-shrink: 0; }
+
+.skill-icon svg { width: 26px; height: 26px; }
+.node-icon svg { width: 22px; height: 22px; }
+.shop-icon svg { width: 20px; height: 20px; }
+.evo-icon svg { width: 28px; height: 28px; }
+
+.toast .t-icon {
+  display: flex;
+  align-items: center;
+  font-size: 16px;
+}
+
+.toast .t-icon svg { width: 16px; height: 16px; }
 .toast .t-text { font-size: 11px; font-weight: 700; letter-spacing: 0.04em; }
 .toast .t-text b { color: var(--cyan); }
 .toast.gold { border-color: rgba(255, 200, 87, 0.3); }
@@ -2011,6 +2174,11 @@ body[data-scene="run"] #toasts {
   .evolve-choices { grid-template-columns: 1fr; }
   .help-grid { grid-template-columns: 1fr; }
 
+  .inter-top { flex-direction: column; align-items: flex-start; gap: 6px; }
+  .inter-actions .primary,
+  .inter-actions .ghost { flex-basis: 100%; }
+  .inter-panel { max-height: 260px; }
+
   .result-stats { grid-template-columns: repeat(2, 1fr); }
 
   .title-footer { flex-direction: column; gap: 6px; }
@@ -2019,13 +2187,9 @@ body[data-scene="run"] #toasts {
   .hud-topcenter { top: 60px; }
   #boss-wrap { width: 60vw; }
 
-  .skill-btn { width: 48px; height: 48px; border-radius: 12px; }
-  .skill-btn.ult { width: 58px; height: 58px; }
-  .skill-btn .skill-glyph { font-size: 19px; }
-  .skill-btn.ult .skill-glyph { font-size: 24px; }
+  .skill-bar { transform: scale(0.84); transform-origin: bottom right; }
   .skill-btn .key { display: none; }
 
-  .skill-bar { gap: 5px; }
   .hud-coins { padding: 7px 9px; }
 
   body[data-scene="dojo"] #toasts { top: 150px; }

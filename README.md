@@ -35,13 +35,22 @@ from disk will not work.
 
 - 5 zones with level gates: Bamboo Forest (1), Abandoned Village (3), Crystal Caverns (6),
   Ember Volcano (10), Shadow Fortress (15)
-- 3 waves + boss per zone, 5 bosses, 10 enemy types
+- 3 waves + boss per zone, 5 bosses, 18 enemy types
+- **Between-wave intermission** with a shop, skill upgrades, and a heal option
+- **Next Map** shortcut on the victory screen when the next zone is unlocked
 - XP, levels, automatic skill unlocks at 2/4/6/8/10, skill-point upgrades
 - Coins, 4 attributes, rank-up costs, 12 ranks each
 - Level 10 evolution choice: Thunder Assassin or Wind Dancer
 - Dojo with Map / Skills / Shop / Evolve tabs
-- Run HUD, combo meter, boss bar, pause menu, result screen with S/A/B/C rank
-- Touch joystick and skill buttons; keyboard and mouse on desktop
+- **Vector skill icons** (no emoji), MOBA-style skill fan on the bottom-right
+- **Original procedural music** per zone, a boss theme, and a dojo theme
+- **Louder SFX** with new blade, dash, lightning, and impact sounds
+- **Redrawn hooded ninja** with walk, dash, and blade-swing animation
+- **Lightning, wind, shockwave, meteor, and dragon-strike VFX**
+- **New enemy abilities**: charges, volleys, guard, fire zones, and teleports
+- **Per-boss attack patterns**: slams, fans, charges, spikes, meteor showers, rings,
+  and shadow blinks
+- Touch joystick that spawns **wherever you press**
 - Save/load with `localStorage`, or YouTube cloud save when the SDK is active
 - YouTube SDK hooks: `firstFrameReady`, `gameReady`, `onPause`/`onResume`,
   audio state, `sendScore`, `loadData`/`saveData`

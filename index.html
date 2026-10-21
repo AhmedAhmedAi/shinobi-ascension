@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#070b12">
   <meta name="description" content="Shinobi Ascension — an original ninja action prototype for YouTube Playables.">
   <title>Shinobi Ascension</title>
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="styles.css?v=2">
   <!-- YouTube Playables SDK. Runs as a no-op outside YouTube. Must load before game code. -->
   <script src="https://www.youtube.com/game_api/v1"></script>
 </head>
@@ -66,7 +66,7 @@
 
       <header class="title-top">
         <span class="tag">ORIGINAL NINJA ACTION</span>
-        <span class="version">PROTOTYPE v0.1</span>
+        <span class="version">PROTOTYPE v0.2</span>
       </header>
 
       <div class="title-grid">
@@ -269,6 +269,7 @@
         </div>
         <p class="result-note" id="result-note"></p>
         <div class="result-actions">
+          <button id="btn-next-map" class="primary hidden">Next Map</button>
           <button id="btn-run-again" class="primary">Run Again</button>
           <button id="btn-to-dojo" class="ghost">Return to Dojo</button>
         </div>
@@ -288,6 +289,28 @@
         <button id="btn-sfx" class="ghost small">SFX: ON</button>
       </div>
       <p class="modal-hint">Space dash · 1–4 skills · Esc pause</p>
+    </div>
+  </div>
+
+  <div id="intermission-overlay" class="overlay hidden" role="dialog" aria-modal="true" aria-labelledby="intermission-title">
+    <div class="modal wide intermission">
+      <p class="modal-kicker" id="inter-kicker">WAVE 1 CLEARED</p>
+      <h2 id="intermission-title">Catch Your Breath</h2>
+      <div class="inter-top">
+        <div class="inter-coins"><span class="coin-glyph">◈</span> <b id="inter-coins">0</b></div>
+        <div class="inter-next" id="inter-next">Next: Wave 2</div>
+      </div>
+      <div class="inter-tabs">
+        <button class="itab active" data-itab="stats" type="button">Shop</button>
+        <button class="itab" data-itab="skills" type="button">Skills</button>
+      </div>
+      <div id="inter-shop" class="inter-panel active"></div>
+      <div id="inter-skills" class="inter-panel"></div>
+      <div class="inter-actions">
+        <button id="btn-next-wave" class="primary" type="button">Next Wave</button>
+        <button id="btn-inter-heal" class="ghost" type="button">Heal · ◈ 60</button>
+      </div>
+      <p class="modal-hint">Spend coins now — upgrades last for the rest of the run.</p>
     </div>
   </div>
 
@@ -343,6 +366,6 @@
   </div>
 </div>
 
-<script type="module" src="src/game.js"></script>
+<script type="module" src="src/game.js?v=2"></script>
 </body>
 </html>

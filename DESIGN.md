@@ -18,8 +18,8 @@ you become.
 
 **Core loop:**
 
-> Enter a zone → clear 3 waves → defeat the boss → earn XP + coins → unlock a skill →
-> upgrade attributes → open the next area → repeat.
+> Enter a zone → clear a wave → **shop / upgrade between waves** → clear 3 waves →
+> defeat the boss → earn XP + coins → unlock a skill → open the next area.
 
 Every run makes you visibly stronger. Every level gives a new tool. Every area opens
 because *you* grew, not because a menu said so.
@@ -328,7 +328,9 @@ pool, and boss. "Opening" a zone is a level gate plus a first-clear reward.
 ### 11.1 Wave structure
 
 - 3 waves per zone. Wave size grows from 5 to 9 enemies.
-- 1.5s breather between waves, with a banner.
+- After each wave, an **intermission** opens: spend coins on attributes, spend skill
+  points, heal, then start the next wave (or the boss).
+- The third wave is followed by a boss intermission, so the player can prepare.
 - Boss after wave 3.
 - Enemies spawn at the arena edge with a 0.6s portal telegraph.
 
@@ -359,7 +361,8 @@ into damage sponges.
 | Shadow Blade | melee | 70 | 14 | 120 | 24 | 11 | teleport-step |
 | Void Archer | ranged | 50 | 12 | 80 | 26 | 12 | long-range volley |
 
-Bosses: 380–1,600 HP, 14–28 damage, telegraphed slam + projectile fan, enrage below 40%.
+Bosses: 380–2,300 HP, 14–34 damage, boss-specific attack patterns (slam, fan, charge,
+spikes, meteor shower, ring, blink), enrage below 40%.
 
 ---
 
@@ -374,7 +377,8 @@ Bosses: 380–1,600 HP, 14–28 damage, telegraphed slam + projectile fan, enrag
 5. **Shop** — four attribute rows with current effect, next effect, cost, buy button.
 6. **Evolve** — two path cards at level 10, confirmation modal.
 7. **Run** — HUD: HP, energy, XP, level, coins, wave, boss bar, combo, skill bar.
-8. **Result** — victory/defeat, rank stamp, kills, coins, XP, buttons.
+8. **Result** — victory/defeat, rank stamp, kills, coins, XP, next-map shortcut.
+9. **Intermission** — wave-clear summary, attribute shop, skill upgrades, heal, next wave.
 
 ### Principles
 
@@ -401,10 +405,12 @@ restyle. Production can replace it with a hand-drawn atlas without changing the 
 
 ### Audio
 
-- WebAudio-generated SFX (no external files): slash, hit, coin, level-up, dash, chain,
-  boss roar, UI click.
-- No licensed music. A ambient loop can be added later as an original track.
-- Respect YouTube mute at all times; no in-game master mute in production.
+- WebAudio-generated SFX (no external files): blade, hit, coin, level-up, dash,
+  chain, storm, boss roar, UI click.
+- **Procedural music**: one theme per zone (forest, village, caverns, volcano,
+  fortress), a dojo theme, and a dedicated boss theme. The score is synthesized at
+  runtime from original note patterns, so there are no audio files to license.
+- Music ducks during pause and intermission, and respects the platform mute.
 
 ---
 
@@ -468,7 +474,7 @@ Revenue is unproven. Treat ads as upside, not the business plan.
 
 - **Vanilla JavaScript + Canvas 2D**, ES modules, no dependencies.
 - One canvas for gameplay; DOM/CSS for menus and HUD.
-- WebAudio for SFX.
+- WebAudio for SFX and procedural music.
 - `localStorage` fallback; YouTube SDK cloud save when available.
 - Static server (`server.js`) for local development.
 
