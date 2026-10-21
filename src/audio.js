@@ -46,6 +46,20 @@ const MUSIC = {
     arpType: 'triangle', padType: 'sawtooth', bassType: 'sine',
     drums: 'heavy', arpVol: 0.06, padVol: 0.028, bassVol: 0.11, swing: 0,
   },
+  shrine: {
+    bpm: 78, root: 49, scale: [0, 2, 3, 5, 7, 8, 10],
+    chords: [[0, 3, 7], [-2, 2, 5], [-5, -1, 3], [0, 3, 7]],
+    arp: [0, 3, 7, 3, 0, 5, 8, 5, 0, 3, 7, 10, 7, 3, 0, -2],
+    arpType: 'sine', padType: 'triangle', bassType: 'sine',
+    drums: 'soft', arpVol: 0.075, padVol: 0.04, bassVol: 0.1, swing: 0.01,
+  },
+  sky: {
+    bpm: 122, root: 57, scale: [0, 2, 3, 5, 7, 8, 10],
+    chords: [[0, 3, 7], [-2, 2, 5], [-5, -1, 3], [-1, 2, 6]],
+    arp: [0, 4, 7, 11, 7, 4, 0, 3, 8, 12, 8, 3, 0, 4, 7, 11],
+    arpType: 'triangle', padType: 'sawtooth', bassType: 'triangle',
+    drums: 'heavy', arpVol: 0.062, padVol: 0.03, bassVol: 0.12, swing: 0,
+  },
   boss: {
     bpm: 138, root: 45, scale: [0, 1, 3, 5, 7, 8, 10],
     chords: [[0, 3, 7], [0, 1, 6], [-4, 0, 3], [0, 3, 7]],
@@ -200,6 +214,69 @@ class AudioEngine {
     this._tone({ freq: 1175, dur: 0.18, type: 'sine', vol: 0.15, delay: 0.08 });
   }
 
+  equip() {
+    this._noiseBurst({ dur: 0.08, freq: 3600, q: 1.1, vol: 0.18, type: 'highpass' });
+    this._tone({ freq: 680, to: 1040, dur: 0.1, type: 'triangle', vol: 0.14 });
+  }
+
+  heal() {
+    [520, 660, 880].forEach((f, i) => {
+      this._tone({ freq: f, dur: 0.2, type: 'sine', vol: 0.16, delay: i * 0.06 });
+    });
+    this._noiseBurst({ dur: 0.3, freq: 2400, q: 0.6, vol: 0.08, type: 'bandpass' });
+  }
+
+  rageReady() {
+    this._tone({ freq: 90, to: 210, dur: 0.34, type: 'sawtooth', vol: 0.2 });
+    this._tone({ freq: 330, to: 660, dur: 0.28, type: 'triangle', vol: 0.14, delay: 0.08 });
+  }
+
+  rage() {
+    this._noiseBurst({ dur: 0.55, freq: 520, q: 0.5, vol: 0.4, type: 'lowpass' });
+    [110, 165, 220].forEach((f, i) => {
+      this._tone({ freq: f, to: f * 1.8, dur: 0.45, type: 'sawtooth', vol: 0.18, delay: i * 0.05 });
+    });
+    this._tone({ freq: 880, to: 1320, dur: 0.5, type: 'triangle', vol: 0.14, delay: 0.2 });
+  }
+
+  execution() {
+    this._noiseBurst({ dur: 0.9, freq: 260, q: 0.45, vol: 0.38, type: 'lowpass' });
+    this._tone({ freq: 55, to: 36, dur: 0.8, type: 'sine', vol: 0.34 });
+    this._tone({ freq: 110, to: 440, dur: 0.55, type: 'sawtooth', vol: 0.16 });
+    this._tone({ freq: 880, to: 1760, dur: 0.45, type: 'triangle', vol: 0.12, delay: 0.18 });
+    this._noiseBurst({ dur: 0.18, freq: 5200, q: 1.1, vol: 0.16, type: 'highpass' });
+  }
+
+  bow() {
+    this._noiseBurst({ dur: 0.07, freq: 4600, q: 1.3, vol: 0.2, type: 'highpass' });
+    this._tone({ freq: 720, to: 240, dur: 0.11, type: 'triangle', vol: 0.14 });
+  }
+
+  silk() {
+    this._noiseBurst({ dur: 0.1, freq: 2800, q: 1.4, vol: 0.12, type: 'bandpass' });
+    this._tone({ freq: 980, to: 1320, dur: 0.12, type: 'sine', vol: 0.1 });
+  }
+
+  arcane() {
+    this._tone({ freq: 660, to: 990, dur: 0.16, type: 'triangle', vol: 0.13 });
+    this._tone({ freq: 1320, dur: 0.2, type: 'sine', vol: 0.08, delay: 0.04 });
+  }
+
+  quake() {
+    this._tone({ freq: 92, to: 42, dur: 0.38, type: 'sine', vol: 0.3 });
+    this._noiseBurst({ dur: 0.34, freq: 420, q: 0.5, vol: 0.22, type: 'lowpass' });
+  }
+
+  fire() {
+    this._noiseBurst({ dur: 0.24, freq: 900, q: 0.7, vol: 0.18, type: 'bandpass' });
+    this._tone({ freq: 260, to: 620, dur: 0.2, type: 'sawtooth', vol: 0.12 });
+  }
+
+  wind() {
+    this._noiseBurst({ dur: 0.24, freq: 2400, q: 1.1, vol: 0.16, type: 'highpass' });
+    this._tone({ freq: 520, to: 760, dur: 0.16, type: 'triangle', vol: 0.1 });
+  }
+
   dash() {
     this._noiseBurst({ dur: 0.16, freq: 2600, q: 1.4, vol: 0.28, type: 'bandpass' });
     this._tone({ freq: 220, to: 880, dur: 0.14, type: 'sawtooth', vol: 0.12 });
@@ -234,6 +311,11 @@ class AudioEngine {
   boss() {
     this._tone({ freq: 68, to: 34, dur: 1.0, type: 'sawtooth', vol: 0.28 });
     this._noiseBurst({ dur: 0.8, freq: 280, q: 0.4, vol: 0.26, type: 'lowpass' });
+  }
+
+  firework() {
+    this._noiseBurst({ dur: 0.35, freq: 1200, q: 0.5, vol: 0.1, type: 'highpass' });
+    this._tone({ freq: 520, to: 220, dur: 0.28, type: 'triangle', vol: 0.08 });
   }
 
   wave() {

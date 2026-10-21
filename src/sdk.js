@@ -3,7 +3,8 @@
    All calls are guarded so the game runs normally in a browser.
    ============================================================ */
 
-const KEY = 'shinobi-ascension-save-v1';
+const KEY = 'shinobi-ascension-save-v3';
+const LEGACY_KEY = 'shinobi-ascension-save-v1';
 
 function yt() {
   return typeof window !== 'undefined' ? window.ytgame : undefined;
@@ -70,7 +71,9 @@ export const sdk = {
       }
     }
     try {
-      return window.localStorage.getItem(KEY);
+      const current = window.localStorage.getItem(KEY);
+      if (current) return current;
+      return window.localStorage.getItem(LEGACY_KEY);
     } catch (err) {
       return null;
     }

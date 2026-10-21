@@ -1,11 +1,10 @@
-# Shinobi Ascension
+# Shinobi Ascension — Storm of Legends
 
-A playable vertical slice of an original ninja action RPG built for YouTube Playables.
-No frameworks, no external assets, no dependencies. Everything is drawn and synthesized
-in code.
+A playable ninja action RPG built for YouTube Playables. No frameworks, no external assets,
+no dependencies. Every hero, icon, effect, and note is generated in code.
 
-> **Original IP only.** This is not a Naruto game and cannot use Naruto characters,
-> names, symbols, or music. See `DESIGN.md` section 4.
+> **Original IP only.** This is not a Naruto game and cannot use Naruto characters, names,
+> symbols, or music. See `DESIGN.md` section 4.
 
 ## Run it
 
@@ -15,8 +14,44 @@ node server.js
 
 Open **http://localhost:4173**.
 
-A server is required because the game uses ES modules. Opening `index.html` directly
-from disk will not work.
+A server is required because the game uses ES modules. Opening `index.html` directly from
+disk will not work.
+
+## The game
+
+Start by choosing one of six playable shinobi, then enter the camp:
+
+| Hero | Role | Identity |
+|---|---|---|
+| **Kaito** | Assassin | Storm dashes, chain lightning, blade beams, Thunderfall Judgment |
+| **Mira** | Guardian | Heavy slams, shockwaves, iron defense, Worldbreaker |
+| **Ren** | Fire Arts | Embers, flame fans, burning zones, Pyre Requiem |
+| **Sora** | Controller | Silk needles, binding chains, slowing webs, Silk Requiem |
+| **Yuki** | Ranger | Piercing arrows, arrow rain, gale traps, Skyfall Final Hunt |
+| **Aster** | Mage | Arcane bolts, frost, meteors, a singularity, Starfall Requiem |
+
+Each hero has six techniques: one movement dash, four regular actives, and one signature
+**Execution**. Your four-slot loadout includes the Execution, which is auto-equipped at the
+start of a run; choose the other three around it in the camp.
+
+Auto-attacks are hero-specific: Kaito and Mira strike in melee, Ren throws embers, Sora lashes
+with silk, Yuki fires arrows from long range, and Aster casts arcane bolts from range.
+
+### Run structure
+
+- **7 chapters**, each with **4 waves + a boss**
+- Waves hold 8–12 initial enemies plus a reinforcement pack, for roughly 13–21 enemies per wave; elites appear in the last wave
+- After a wave, a short **wave-cleared** beat plays, then the upgrade cards open
+- After the boss falls, time slows for a **boss-death sequence** with fireworks and a chapter-clear banner
+- Results show rank, stars, rewards, and buttons to continue, return to camp, replay, or change hero
+
+### Camp
+
+- **Campaign** — the chapter map, boss preview, clear count, best rank, first-clear reward, and Deploy
+- **Arsenal** — upgrade techniques with skill points, arrange your four-slot loadout around the auto-equipped Execution, view passives and evolutions
+- **Shop** — hero skins, blade skins, and early technique unlocks
+- **Evolve** — choose one of two permanent paths at level 10
+- **Change Hero** — return to the character-select screen
 
 ## Controls
 
@@ -25,77 +60,143 @@ from disk will not work.
 | Move | WASD / arrow keys, or drag anywhere on screen (touch) |
 | Auto-attack | automatic (nearest enemy) |
 | Dash | Space |
-| Spark Bolt | 1 |
-| Chain Lightning | 2 |
-| Thunder Storm | 3 |
-| Thunderfall | 4 |
+| Techniques | 1–4 |
+| Execution | F (or its equipped slot) |
+| Rage / Rage Art | R |
 | Pause | Esc |
 
-## What is implemented
+Hits fill the **rage column** on the left. When it is full, press **R** to transform.
+While raging, press **R** again to spend the Rage Art, a hero-specific finisher.
 
-- 5 zones with level gates: Bamboo Forest (1), Abandoned Village (3), Crystal Caverns (6),
-  Ember Volcano (10), Shadow Fortress (15)
-- 3 waves + boss per zone, 5 bosses, 18 enemy types
-- **Between-wave intermission** with a shop, skill upgrades, and a heal option
-- **Next Map** shortcut on the victory screen when the next zone is unlocked
-- XP, levels, automatic skill unlocks at 2/4/6/8/10, skill-point upgrades
-- Coins, 4 attributes, rank-up costs, 12 ranks each
-- Level 10 evolution choice: Thunder Assassin or Wind Dancer
-- Dojo with Map / Skills / Shop / Evolve tabs
-- **Vector skill icons** (no emoji), MOBA-style skill fan on the bottom-right
-- **Original procedural music** per zone, a boss theme, and a dojo theme
-- **Louder SFX** with new blade, dash, lightning, and impact sounds
-- **Redrawn hooded ninja** with walk, dash, and blade-swing animation
-- **Lightning, wind, shockwave, meteor, and dragon-strike VFX**
-- **New enemy abilities**: charges, volleys, guard, fire zones, and teleports
-- **Per-boss attack patterns**: slams, fans, charges, spikes, meteor showers, rings,
-  and shadow blinks
-- Touch joystick that spawns **wherever you press**
-- Save/load with `localStorage`, or YouTube cloud save when the SDK is active
-- YouTube SDK hooks: `firstFrameReady`, `gameReady`, `onPause`/`onResume`,
-  audio state, `sendScore`, `loadData`/`saveData`
-- No external calls except the official Playables SDK script
+Press **F** for the signature **Execution** once it is charged. It starts empty each run and
+fills from hits and kills. At 100% it freezes the arena for a cinematic finisher: normal enemies
+are destroyed, bosses take heavy damage and are stunned, and the HUD returns when the animation
+ends. The Execution then resets to empty and has a long cooldown.
+
+### Per-hero progress
+
+Each shinobi has an independent save profile:
+
+- level and XP
+- coins and skill points
+- attributes
+- techniques and ranked skills
+- four-slot loadout and evolution
+- chapter clears, best ranks, run stats, and lifetime kills
+
+Hero select shows each hero's level on their roster card. Swapping heroes swaps the active
+save, so leveling Kaito does not level Mira. Skins, blade skins, and settings remain
+account-wide cosmetic/configuration choices.
+
+### Character select showcase
+
+The selected hero now physically holds their weapon. The idle showcase loops a signature
+weapon move: Kaito's katana slash, Mira's hammer lift, Ren's fan flourish, Sora's whip sway,
+Yuki's bow draw, and Aster's spinning staff and orb. Reduced-motion mode keeps the pose but drops
+the looping animation.
+
+## Systems
+
+### Progression
+
+- XP curve: `round(80 × 1.22^(level − 1))`
+- Skill points: +1 per level; each skill has five ranks
+- Skill auto-unlock levels: **1 / 3 / 5 / 8 / 10**
+- Chapter gates: **1 / 3 / 6 / 10 / 15 / 18 / 22**
+- Evolution at level 10, permanent per hero
+- Max level 60
+- All level, XP, coin, attribute, skill-point, chapter, and stats progression is per hero
+
+### Five attributes, twelve stars each
+
+| Attribute | Effect per rank |
+|---|---|
+| **Power** | +2 damage |
+| **Vitality** | +8 max health |
+| **Agility** | +4 move speed |
+| **Focus** | +2 energy, +0.5% crit |
+| **Armor** | +1.5% damage reduction |
+
+Attribute cards are shown as five vertical cards after every wave, but you may claim **only one
+upgrade per intermission**. Costs rise with rank, and the effects are deliberately modest. Every
+point fills a star and changes the card art; Power also changes the hero's blade, Armor changes
+the shoulders, Agility lengthens the scarf, Focus intensifies the aura, and Vitality adds a chest
+sigil.
+
+### Shop and cosmetics
+
+- 12 hero skins (2 per hero)
+- 4 blade skins that change weapon shape and glow
+- Technique scrolls that unlock skills before their level gate
+- All purchases use coins earned in combat
+
+### Rage
+
+- Hits fill the rage column; kills fill it faster
+- Rage grants +35% damage, +10% crit, +10% speed, +50% energy regen, and −25% skill cost
+- Rage resets skill cooldowns
+- Each hero has a unique Rage Art
+- The column shows the normal portrait at the bottom and the rage portrait at the top
+
+### Element identity
+
+Every hero has its own combat language and visual effects:
+
+- Kaito: lightning chains, strikes and storm fields
+- Mira: stone spikes, shockwaves, hammer impacts and Worldbreaker
+- Ren: burning embers, flame fans, fire zones and Pyre Requiem
+- Sora: silk lines, webs, slows and Silk Requiem
+- Yuki: arrows, piercing line shots, gale traps and Skyfall Final Hunt
+- Aster: arcane sigils, frost, meteors and Starfall Requiem
 
 ## Project structure
 
 ```
 index.html        screens, HUD, overlays
-styles.css        UI system and responsive layout
-src/data.js       heroes, skills, enemies, zones, formulas
-src/game.js       state, progression, combat, rendering, UI
-src/sdk.js        Playables SDK wrapper + local fallback
-src/audio.js      WebAudio sound effects
+styles.css        game UI system and responsive layout
+src/data.js       heroes, skills, rage arts, enemies, bosses, zones, cosmetics, formulas
+src/game.js       state, input, combat, rendering, UI
+src/sdk.js        YouTube Playables SDK wrapper + local save fallback
+src/audio.js      WebAudio SFX + procedural music (7 themes + boss + dojo)
+src/icons.js      inline SVG icons, portraits, skill art, blade art, card art
 server.js         zero-dependency static server
-DESIGN.md         full game design document
+DESIGN.md         full design document (v0.2 history + v0.3 addendum)
 ```
+
+## Save data
+
+- Save key: `shinobi-ascension-save-v3`
+- Legacy `v1` saves are read and migrated on boot
+- Local storage is used outside YouTube; `loadData`/`saveData` is used inside Playables
+- Saves are normalized and merged with defaults, so added content does not break old profiles
+- Each hero owns a profile under `state.heroProgress[heroId]`; legacy shared progress is copied to every hero once on migration, then diverges
 
 ## Dev helpers
 
 The game exposes a debug API in the browser console:
 
 ```js
-__shinobi.state              // current save state
-__shinobi.addXp(500)         // grant XP, may level up
-__shinobi.addCoins(1000)     // grant coins
-__shinobi.setLevel(10)       // jump to level 10
-__shinobi.start('volcano')   // enter a zone
-__shinobi.tick(10)           // simulate 10 seconds of combat
-__shinobi.finish(true)       // end the current run as a victory
-__shinobi.reset()            // wipe save and reload
+__shinobi.state              // current save state (active hero + heroProgress)
+__shinobi.run                // current run, if any
+__shinobi.addXp(500)
+__shinobi.addCoins(1000)
+__shinobi.setLevel(10)
+__shinobi.start('volcano')
+__shinobi.tick(10)
+__shinobi.clearWave()
+__shinobi.finish(true)
+__shinobi.showResult()
+__shinobi.openDojo('map')
+__shinobi.openHeroSelect()
+__shinobi.activateRage()
+__shinobi.castRageArt()
+__shinobi.castSkill('k_ult')
+__shinobi.reset()
 ```
-
-## Next steps
-
-1. Replace code-drawn enemies with a hand-drawn sprite atlas.
-2. Add music and more SFX variations.
-3. Add the remaining three heroes.
-4. Add cosmetics, achievements, and a daily first-run bonus.
-5. Run the official Playables test suite and bundle analyzer, then submit through the
-   interest form.
 
 ## Notes
 
-- The initial bundle is tiny (code-only), well under the 15 MiB target.
-- The game is single-player by design: Playables does not allow external game servers.
-- The in-game SFX toggle is a prototype convenience. Production should rely on the
-  platform mute setting; the SDK wrapper already respects it.
+- Initial bundle is tiny because all art and audio are generated at runtime.
+- The game is single-player by design; Playables does not allow external game servers.
+- No IAP, no third-party ads, no external links.
+- The YouTube SDK is the only external request.

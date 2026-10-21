@@ -1,10 +1,16 @@
 # SHINOBI ASCENSION
-### Game Design Document — v0.2 (vertical slice)
+### Game Design Document — v0.3 “Storm of Legends” (current build)
 
 **Genre:** top-down action RPG / arena fighter
 **Platform:** YouTube Playables (HTML5), mobile + desktop
-**Session length:** 5–9 minute runs, 10–15 minute sessions
-**Status:** playable prototype in this folder
+**Session length:** 6–10 minute runs, 12–18 minute sessions
+**Status:** playable build in this folder
+
+> **v0.3 note:** sections 1–22 describe the original v0.2 vertical slice and remain as design
+> history. Section 23 documents the systems added in the current build: six playable heroes,
+> seven chapters, four-wave runs, rage mode, cinematic executions, per-hero save profiles,
+> held-weapon selection animations, the camp/shop/loadout loop, boss-death slow motion,
+> five-card attribute upgrades, and the gamified UI.
 
 ---
 
@@ -173,7 +179,7 @@ coins (never real money).
 | Hero | Role | Passive | Signature | Evolutions |
 |---|---|---|---|---|
 | **Mira, the Iron Lotus** | tank | 15% damage reduction | Stone Skin, Quake Slam | Iron Fortress / Mountain Breaker |
-| **Ren, the Ashcaller** | ninjutsu | burn damage over time | Ember Wave, Smoke Clone | Pyre Sage / Ash Phantom |
+| **Ren, the Ashcaller** | fire arts | burn damage over time | Ember Wave, Smoke Clone | Pyre Sage / Ash Phantom |
 | **Sora, the Threadweaver** | control | +20% energy regen | Binding Thread, Healing Pulse | Silk Warden / Puppet Master |
 
 Each hero needs unique animation, VFX, and balance. Ship one at a time.
@@ -623,3 +629,196 @@ updates (new skills, new zones).
 4. Endless mode after the five zones, or a new campaign+?
 5. Localization at launch: English only, or EN/ES/PT/ID?
 6. Controller support (Playables primarily touch/mouse)?
+
+---
+
+## 23. v0.3 — Storm of Legends (current build)
+
+### 23.1 Goals of this pass
+
+The v0.2 build proved the core loop but read as a polished front-end demo. v0.3 turns it into
+a game: choose a character, live in a camp, build a loadout, fill a rage meter, and feel every
+upgrade on the character and on the battlefield.
+
+### 23.2 Six playable heroes
+
+| Hero | Role | Passive (Lv. 8) | Signature kit | Evolutions |
+|---|---|---|---|---|
+| **Kaito** | Assassin | +10% crit | Storm Dash, Spark Bolt, Chain Lightning, Gale Slash, Thunder Storm, Thunderfall: Judgment | Thunder Assassin / Wind Dancer |
+| **Mira** | Guardian | +15% damage reduction | Iron Charge, Stone Fist, Quake Slam, Mountain Breaker, Iron Fortress, Worldbreaker | Iron Fortress / Mountain Breaker |
+| **Ren** | Fire Arts | +15% skill damage | Ash Step, Ember Wave, Flame Fan, Firestorm, Pyre Nova, Pyre Requiem | Pyre Sage / Ash Phantom |
+| **Sora** | Controller | +25% energy regen | Silk Step, Thread Shot, Binding Thread, Web Field, Puppet Storm, Silk Requiem | Silk Warden / Puppet Master |
+| **Yuki** | Ranger | +15% projectile damage | Wind Step, Piercing Arrow, Rain of Arrows, Hunter's Volley, Gale Trap, Skyfall: Final Hunt | Stormfeather / Deadeye |
+| **Aster** | Mage | +25% energy regen | Blink, Arcane Bolt, Frost Nova, Meteor, Singularity, Starfall Requiem | Archmage / Chronomancer |
+
+Each hero has one dash, four regular actives, and one signature **Execution**. A run carries
+four active slots; the Execution is auto-equipped, leaving three regular techniques to choose
+in the Arsenal. Dash is always fixed to Space. Evolutions are permanent per hero and stored in
+`state.evolutions`.
+
+Auto-attacks are hero-specific: Kaito and Mira use melee arcs; Ren throws embers; Sora lashes
+with silk; Yuki fires arrows from 380px; Aster casts arcane bolts from 330px.
+
+#### Execution
+
+Every hero has a cinematic finisher bound to **F** (and to its equipped slot). It starts each
+run at 0% charge and fills from hits and kills; it cannot be used immediately. At 100% it spends
+60 energy, enters a 30s cooldown, and:
+
+- freezes the arena and hides the HUD
+- plays a letterboxed hero-specific cinematic with a title card and kill count
+- instantly destroys all normal enemies, including elites
+- deals ~22-34% of a boss's max HP, breaks guard, and stuns the boss for 2.5s
+- cleanses enemy projectiles and grants brief invulnerability
+- delays wave clear until the cinematic ends
+
+The six Executions are Thunderfall: Judgment, Worldbreaker, Pyre Requiem, Silk Requiem,
+Skyfall: Final Hunt, and Starfall Requiem. They replace the old heal/shield/buff skills
+(Bulwark, Smoke Clone, Healing Pulse, Arcane Barrier), so sustain now comes from pickups,
+positioning, and the camp's healing option.
+
+#### Per-hero progression
+
+Every hero has an independent profile under `state.heroProgress[heroId]` containing level, XP,
+coins, skill points, attributes, zone clears, best ranks, and run/lifetime stats. Switching
+heroes writes the active profile and loads the target one. Skill ranks and loadouts are already
+keyed by hero-specific skill IDs, and `ensureUnlockedSkills` now unlocks techniques against each
+hero's own level instead of the active level. Cosmetics and settings stay account-wide. Old v3
+saves with one shared progression block are migrated by seeding every hero with that block once;
+progress diverges from that point forward.
+
+#### Character-select weapon showcase
+
+The selected hero now holds their weapon instead of showing a detached weapon badge. A small
+SVG rig adds an arm, gloved hand, and hero-specific weapon at a shared grip point. The weapon
+loops a signature move via SMIL: katana slash, hammer lift, fan flourish, whip sway, bow draw,
+and spinning staff-orb. Reduced-motion mode keeps the held pose but removes the animation.
+In-game, every weapon is drawn from the grip hand with a visible glove.
+
+### 23.3 Rage mode
+
+- Rage is a per-run resource. Every hit adds ~2 rage; kills add ~4.5.
+- The vertical rage column shows the normal portrait at the bottom and the rage portrait at
+  the top.
+- At 100, press **R** (or tap the rage button) to transform for 8 seconds:
+  - +35% damage, +10% crit, +10% speed
+  - +50% energy regeneration
+  - −25% skill cost
+  - All skill cooldowns reset
+- While raging, pressing **R** again spends the hero-specific **Rage Art**:
+  - Kaito: Thunder God’s Descent (large stun)
+  - Mira: Worldbreaker (damage, heal, shield)
+  - Ren: Inferno Bloom (five burning zones + burst)
+  - Sora: Marionette Requiem (long chain bind)
+- Rage changes the character aura, eye glow, screen vignette, panel state, and portraits.
+
+### 23.4 Seven chapters, four waves, seven bosses
+
+| # | Chapter | Unlock | Tier | Boss |
+|---|---|---|---|---|
+| 1 | Bamboo Forest | 1 | 1.0 | Training Master |
+| 2 | Abandoned Village | 3 | 1.3 | Bandit Chief |
+| 3 | Crystal Caverns | 6 | 1.6 | Stone Guardian |
+| 4 | Ember Volcano | 10 | 2.0 | Fire Oni |
+| 5 | Shadow Fortress | 15 | 2.5 | Shadow King |
+| 6 | Sunken Shrine | 18 | 3.0 | Tide Empress |
+| 7 | Sky Citadel | 22 | 3.6 | Storm Emperor |
+
+Each chapter has **four waves** of 8-12 initial enemies plus a reinforcement pack, for roughly
+13-21 enemies per wave. Reinforcements arrive a few seconds into the wave, and the fourth wave
+contains elites. The run
+then moves to a boss intermission. Bosses use telegraphed slams, fans, charges, rings, spikes,
+meteors, and blinks; enrage below ~40% health.
+
+New enemies include Drowned, Tide Callers, Shrine Guards, Sky Blades, Storm Monks, Cloud
+Serpents, Sky Sentinels, Mirror Wraiths, Stone Sentinels, and the existing 18 enemy types.
+
+### 23.5 Camp loop and UI
+
+The old title marketing screen is gone. Boot goes directly to **hero select**, showing all six
+characters with role, stats, passive, and signature techniques. Choosing a hero opens the camp.
+
+Camp tabs:
+
+1. **Campaign** — chapter map, detail panel, boss, clears, best rank, first-clear reward, Deploy.
+2. **Arsenal** — loadout slots (1–4), technique cards, rank pips, upgrade buttons, equip,
+   passive card, evolution card.
+3. **Shop** — Skins, Blades, Techniques; owned/equipped states; coin prices.
+4. **Evolve** — two permanent path cards at level 10.
+
+The old white-card, thin-border front-end treatment was replaced with angular clipped panels,
+gold bevels, heavy display type, engraved tabs, and illustrated card faces.
+
+### 23.6 Five attribute cards
+
+Between waves the game shows **five vertical cards** side by side:
+
+- Power, Vitality, Agility, Focus, Armor.
+- The player may claim **only one** attribute per intermission; the other cards lock and dim.
+- Twelve stars per attribute; every star changes the card art.
+- Power changes the blade length, glow color, serrations, and runes.
+- Armor grows the shoulder plates and trim.
+- Agility lengthens the scarf.
+- Focus strengthens the eye/aura glow.
+- Vitality adds a chest sigil.
+- Each upgrade animates the card and updates the next effect.
+
+Costs use `floor(40 × 1.38^rank)`. Max rank is 12. Effects are intentionally modest:
+Power +2 damage, Vitality +8 HP, Agility +4 speed, Focus +2 energy/+0.5% crit, Armor +1.5%
+damage reduction. This keeps later chapters from becoming stat-check trivial.
+
+### 23.7 Wave-clear and boss-death presentation
+
+- When a wave is cleared, the simulation freezes for **1.15 seconds** with a full-screen
+  “WAVE CLEARED” banner, then the intermission cards deal in with a stagger.
+- When the boss dies:
+  - combat freezes and effects slow down
+  - the boss silhouette dissolves
+  - fireworks launch across the arena
+  - “BOSS DEFEATED · CHAPTER CLEARED” and the boss name appear with stars
+  - after ~2.35 seconds the run rewards are resolved and the result card appears
+- The result screen has Next Chapter, Run Again, Return to Camp, and Change Hero actions.
+
+### 23.8 Shop and cosmetics
+
+- 12 hero skins (2 per hero): free default + premium alt palette.
+- 4 blade skins: Borrowed Blade, Ember Fang, Jade Reaper, Void Needle.
+- Skins change the in-run palette, portrait, and card preview.
+- Blade skins change weapon color, glow, hilt, and shape; Power rank further modifies the weapon.
+- Technique scrolls unlock active skills before their normal level gate.
+- All currency is earned in combat; no real-money purchases.
+
+### 23.9 HP feedback
+
+- Health drops now glow with a vertical beacon and an “HP” label, with a brighter pulse when
+  the player is low.
+- A red low-health vignette pulses below 30% HP and intensifies below 15%.
+- Pickups magnetize from farther away and leave the floor if the player is already full.
+- Healing produces a green screen flash, a large +HP number, particles, and a pulse on the HP bar.
+
+### 23.10 Technical changes
+
+- Save schema `version: 3`; legacy `v1` key is read and normalized.
+- Save key `shinobi-ascension-save-v3`.
+- Six hero loadouts and evolutions are stored per hero.
+- Cosmetics ownership and selections are stored.
+- World expanded to 2200 × 1600.
+- Seven pre-rendered theme backgrounds.
+- New procedural music themes: shrine, sky.
+- New synthesized SFX: rage-ready, rage, heal, equip, firework.
+- `gameReady()` is called once at boot; the title/start duplicate was removed.
+- Pause stops rendering, simulation, and music; resume restarts the correct theme.
+- Reduced-motion disables screen shake.
+- Intermission keyboard casting and leftover hazards were fixed.
+- Boss XP is now applied to the actual save.
+- Touch detection uses `any-pointer: coarse` so hybrid tablets get the joystick.
+- Modals scroll instead of clipping on short landscape screens.
+- Boss blink telegraphs now resolve at the telegraphed location.
+
+### 23.11 Known limitations / next pass
+
+- Heroes use hand-built vector silhouettes and distinct weapons; a production sprite atlas would add more animation frames.
+- Only one hero animation set exists per weapon type; add unique walk/attack poses.
+- Localization, controller support, and accessibility focus trapping remain future work.
+- Ads are still hooks only; no ads UI is shipped in this build.
+- Balance should be tuned from real playtests, particularly late-chapter boss health and coin flow.
