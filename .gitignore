@@ -1,0 +1,5 @@
+.DS_Store
+.ngrok.log
+.cloudflared.log
+mobile-test.html
+node_modules/

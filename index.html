@@ -1,0 +1,344 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#070b12">
+  <meta name="description" content="Shinobi Ascension — an original ninja action prototype for YouTube Playables.">
+  <title>Shinobi Ascension</title>
+  <link rel="stylesheet" href="styles.css">
+  <!-- YouTube Playables SDK. Runs as a no-op outside YouTube. Must load before game code. -->
+  <script src="https://www.youtube.com/game_api/v1"></script>
+</head>
+<body>
+<div id="app">
+  <canvas id="game" aria-hidden="true"></canvas>
+
+  <!-- ============================ RUN HUD ============================ -->
+  <div id="hud" class="hidden" aria-hidden="true">
+    <div class="hud-topleft">
+      <div class="hud-level">LV <span id="hud-level">1</span></div>
+      <div class="hud-bars">
+        <div class="bar hp"><i id="hud-hp"></i><b id="hud-hp-text">120 / 120</b></div>
+        <div class="bar energy"><i id="hud-energy"></i></div>
+        <div class="bar xp"><i id="hud-xp"></i></div>
+      </div>
+    </div>
+
+    <div class="hud-topcenter">
+      <div id="hud-zone">Bamboo Forest</div>
+      <div id="hud-wave">Wave 1 / 3</div>
+      <div id="boss-wrap" class="hidden">
+        <div id="boss-name">Training Master</div>
+        <div class="boss-bar"><i id="boss-hp"></i></div>
+      </div>
+    </div>
+
+    <div class="hud-topright">
+      <div class="hud-coins"><span class="coin-glyph">◈</span> <b id="hud-coins">0</b></div>
+      <button id="btn-pause" class="icon-btn" aria-label="Pause">II</button>
+    </div>
+
+    <div id="combo" class="hidden"><span>COMBO</span><b id="combo-value">0</b></div>
+    <div id="wave-banner" class="hidden">WAVE 1</div>
+
+    <div class="skill-bar" id="skill-bar"><!-- generated --></div>
+
+    <div id="joystick" class="hidden" aria-hidden="true">
+      <div class="stick-base"><div id="stick-knob" class="stick-knob"></div></div>
+    </div>
+  </div>
+
+  <!-- ============================ SCREENS ============================ -->
+  <main id="screens">
+
+    <!-- TITLE -->
+    <section id="screen-title" class="screen active">
+      <div class="title-bg" aria-hidden="true">
+        <span class="orb orb-a"></span>
+        <span class="orb orb-b"></span>
+        <span class="grid-fade"></span>
+      </div>
+
+      <header class="title-top">
+        <span class="tag">ORIGINAL NINJA ACTION</span>
+        <span class="version">PROTOTYPE v0.1</span>
+      </header>
+
+      <div class="title-grid">
+        <div class="title-copy">
+          <p class="kicker">RISE FROM THE SHADOWS</p>
+          <h1><span>SHINOBI</span><span class="accent">ASCENSION</span></h1>
+          <p class="lede">One blade. Five cursed lands. Every level makes you something the world fears.</p>
+
+          <div class="title-actions">
+            <button id="btn-start" class="primary big">Enter the Dojo</button>
+            <button id="btn-title-help" class="ghost">How to play</button>
+          </div>
+
+          <div class="feature-row">
+            <span><i>01</i> Unlock techniques</span>
+            <span><i>02</i> Evolve your path</span>
+            <span><i>03</i> Open new lands</span>
+          </div>
+        </div>
+
+        <div class="hero-showcase">
+          <div class="hero-halo" aria-hidden="true"></div>
+          <svg class="hero-art" viewBox="0 0 320 360" role="img" aria-label="Kaito, the Stormstep">
+            <defs>
+              <linearGradient id="cloakGrad" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0" stop-color="#17445c"/>
+                <stop offset="0.55" stop-color="#0c2233"/>
+                <stop offset="1" stop-color="#050b12"/>
+              </linearGradient>
+              <linearGradient id="scarfGrad" x1="0" y1="0" x2="1" y2="0.4">
+                <stop offset="0" stop-color="#39d7ff"/>
+                <stop offset="1" stop-color="#0a8fb8"/>
+              </linearGradient>
+              <radialGradient id="haloGrad">
+                <stop offset="0" stop-color="#39d7ff" stop-opacity="0.34"/>
+                <stop offset="1" stop-color="#39d7ff" stop-opacity="0"/>
+              </radialGradient>
+              <linearGradient id="bladeGrad" x1="0" y1="1" x2="1" y2="0">
+                <stop offset="0" stop-color="#8fa9bb"/>
+                <stop offset="1" stop-color="#e9fbff"/>
+              </linearGradient>
+            </defs>
+
+            <circle cx="160" cy="160" r="128" fill="url(#haloGrad)"/>
+            <circle cx="160" cy="160" r="92" fill="none" stroke="#39d7ff" stroke-opacity="0.16"/>
+
+            <!-- sword behind -->
+            <g transform="rotate(24 160 190)">
+              <rect x="232" y="72" width="10" height="190" rx="5" fill="url(#bladeGrad)"/>
+              <rect x="222" y="248" width="30" height="10" rx="5" fill="#ffc857"/>
+              <rect x="232" y="258" width="10" height="46" rx="5" fill="#553b1a"/>
+            </g>
+
+            <!-- cloak -->
+            <path d="M36 360 C48 258 88 210 122 196 L198 196 C236 214 272 262 286 360 Z" fill="url(#cloakGrad)"/>
+            <path d="M122 196 C132 222 188 222 198 196" fill="none" stroke="#39d7ff" stroke-opacity="0.35" stroke-width="2"/>
+
+            <!-- scarf tails -->
+            <path d="M116 212 C86 232 74 286 30 304 C64 312 118 278 136 236 Z" fill="url(#scarfGrad)" opacity="0.9"/>
+            <path d="M128 224 C108 254 108 298 78 326 C112 318 146 282 150 242 Z" fill="url(#scarfGrad)" opacity="0.55"/>
+
+            <!-- hood -->
+            <path d="M118 194 C112 132 128 92 160 84 C194 92 208 132 202 194 C186 210 134 210 118 194 Z" fill="#0a1724"/>
+            <path d="M118 194 C112 132 128 92 160 84 C194 92 208 132 202 194" fill="none" stroke="#39d7ff" stroke-opacity="0.28" stroke-width="2"/>
+
+            <!-- face -->
+            <ellipse cx="160" cy="152" rx="33" ry="38" fill="#183247"/>
+            <path d="M127 146 C142 136 178 136 193 146 L191 166 C172 158 148 158 129 166 Z" fill="#070d14"/>
+            <!-- eyes -->
+            <path d="M138 148 L156 152 L151 162 L135 157 Z" fill="#4ce7ff"/>
+            <path d="M182 148 L164 152 L169 162 L185 157 Z" fill="#4ce7ff"/>
+            <!-- mask folds -->
+            <path d="M132 176 C148 184 172 184 188 176" fill="none" stroke="#0b1a26" stroke-width="3"/>
+
+            <!-- shoulder armor -->
+            <path d="M104 224 C118 210 140 208 154 216 L146 246 C132 238 118 238 108 246 Z" fill="#0b1a26"/>
+            <path d="M216 224 C202 210 180 208 166 216 L174 246 C188 238 202 238 212 246 Z" fill="#0b1a26"/>
+
+            <!-- sparks -->
+            <path d="M74 132 L84 150 L76 152 L88 174" fill="none" stroke="#39d7ff" stroke-width="2" stroke-opacity="0.7"/>
+            <path d="M248 120 L240 140 L248 142 L236 164" fill="none" stroke="#39d7ff" stroke-width="2" stroke-opacity="0.45"/>
+          </svg>
+
+          <div class="hero-caption">
+            <b>KAITO</b>
+            <span>The Stormstep · Assassin</span>
+          </div>
+
+          <div class="hero-select" role="group" aria-label="Heroes">
+            <button class="hero-chip active" type="button">Kaito</button>
+            <button class="hero-chip" type="button" disabled>Mira <span>🔒</span></button>
+            <button class="hero-chip" type="button" disabled>Ren <span>🔒</span></button>
+            <button class="hero-chip" type="button" disabled>Sora <span>🔒</span></button>
+          </div>
+        </div>
+      </div>
+
+      <footer class="title-footer">
+        <span>Original IP · 100% code-drawn art</span>
+        <span>Keyboard · Mouse · Touch</span>
+      </footer>
+    </section>
+
+    <!-- DOJO -->
+    <section id="screen-dojo" class="screen">
+      <header class="dojo-header">
+        <div class="brand-mini"><span class="mark">忍</span><span>SHINOBI <b>ASCENSION</b></span></div>
+
+        <div class="dojo-status">
+          <div class="level-chip">LV <span id="dojo-level">1</span></div>
+          <div class="xp-wrap">
+            <div class="xp-bar"><i id="dojo-xp"></i></div>
+            <span id="dojo-xp-text">0 / 80 XP</span>
+          </div>
+          <div class="coin-chip"><span class="coin-glyph">◈</span> <span id="dojo-coins">0</span></div>
+        </div>
+      </header>
+
+      <nav class="tabs" role="tablist" aria-label="Dojo sections">
+        <button class="tab active" data-tab="map" role="tab" aria-selected="true">Map</button>
+        <button class="tab" data-tab="skills" role="tab" aria-selected="false">Skills <em id="badge-skills" class="badge hidden">0</em></button>
+        <button class="tab" data-tab="shop" role="tab" aria-selected="false">Shop</button>
+        <button class="tab" data-tab="evolve" role="tab" aria-selected="false">Evolve <em id="badge-evolve" class="badge hidden">!</em></button>
+      </nav>
+
+      <div class="dojo-content">
+        <section class="tab-panel active" data-panel="map">
+          <div class="map-wrap">
+            <div class="map-heading">
+              <h2>The Broken Lands</h2>
+              <p>Areas open as your legend grows.</p>
+            </div>
+            <div class="map-canvas">
+              <svg class="map-paths" viewBox="0 0 100 60" preserveAspectRatio="none" aria-hidden="true">
+                <path d="M9,42 C18,22 26,20 33,30 S44,52 52,42 S64,18 72,24 S82,46 90,40" />
+              </svg>
+              <div id="map-nodes"></div>
+            </div>
+            <div class="map-legend">
+              <span><i class="dot open"></i> Open</span>
+              <span><i class="dot locked"></i> Locked</span>
+              <span><i class="dot cleared"></i> Cleared</span>
+            </div>
+          </div>
+          <aside class="map-detail" id="map-detail" aria-live="polite"></aside>
+        </section>
+
+        <section class="tab-panel" data-panel="skills">
+          <div class="panel-heading">
+            <div>
+              <h2>Techniques</h2>
+              <p>Skills unlock automatically as you level. Spend points to sharpen them.</p>
+            </div>
+            <div class="points-chip">SKILL POINTS <b id="skill-points">0</b></div>
+          </div>
+          <div id="skills-grid" class="card-grid"></div>
+        </section>
+
+        <section class="tab-panel" data-panel="shop">
+          <div class="panel-heading">
+            <div>
+              <h2>Forge Your Body</h2>
+              <p>Permanent upgrades. Costs rise with every rank.</p>
+            </div>
+            <div class="points-chip gold">COINS <b id="shop-coins">0</b></div>
+          </div>
+          <div id="shop-list" class="shop-list"></div>
+        </section>
+
+        <section class="tab-panel" data-panel="evolve">
+          <div class="panel-heading">
+            <div>
+              <h2>Choose Your Path</h2>
+              <p>At level 10, your storm takes a shape. The choice is permanent.</p>
+            </div>
+          </div>
+          <div id="evolve-panel"></div>
+        </section>
+      </div>
+
+      <footer class="dojo-footer">
+        <button id="btn-help" class="ghost small">How to play</button>
+        <span class="save-state" id="save-state">Progress saves automatically</span>
+      </footer>
+    </section>
+
+    <!-- RESULT -->
+    <section id="screen-result" class="screen">
+      <div class="result-card">
+        <div class="result-eyebrow" id="result-eyebrow">ZONE CLEARED</div>
+        <h2 id="result-title">Victory</h2>
+        <div class="rank-stamp" id="rank-stamp">A</div>
+        <div class="result-stats">
+          <div><span>Zone</span><b id="rs-zone">Bamboo Forest</b></div>
+          <div><span>Kills</span><b id="rs-kills">0</b></div>
+          <div><span>Coins</span><b id="rs-coins">0</b></div>
+          <div><span>XP</span><b id="rs-xp">0</b></div>
+          <div><span>Best combo</span><b id="rs-combo">0</b></div>
+          <div><span>Time</span><b id="rs-time">0:00</b></div>
+        </div>
+        <p class="result-note" id="result-note"></p>
+        <div class="result-actions">
+          <button id="btn-run-again" class="primary">Run Again</button>
+          <button id="btn-to-dojo" class="ghost">Return to Dojo</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ============================ OVERLAYS ============================ -->
+  <div id="pause-overlay" class="overlay hidden" role="dialog" aria-modal="true" aria-labelledby="pause-title">
+    <div class="modal">
+      <p class="modal-kicker">THE STORM WAITS</p>
+      <h2 id="pause-title">Paused</h2>
+      <div class="modal-actions">
+        <button id="btn-resume" class="primary">Resume</button>
+        <button id="btn-restart" class="ghost">Restart Run</button>
+        <button id="btn-quit" class="ghost">Quit to Dojo</button>
+        <button id="btn-sfx" class="ghost small">SFX: ON</button>
+      </div>
+      <p class="modal-hint">Space dash · 1–4 skills · Esc pause</p>
+    </div>
+  </div>
+
+  <div id="evolve-overlay" class="overlay hidden" role="dialog" aria-modal="true" aria-labelledby="evolve-title">
+    <div class="modal wide">
+      <p class="modal-kicker">LEVEL 10 · THE STORM ANSWERS</p>
+      <h2 id="evolve-title">Choose Your Path</h2>
+      <p class="modal-lede">This choice is permanent. It changes how Kaito fights for the rest of the journey.</p>
+      <div id="evolve-choices" class="evolve-choices"></div>
+      <button id="btn-evolve-cancel" class="ghost small">Not yet</button>
+    </div>
+  </div>
+
+  <div id="help-overlay" class="overlay hidden" role="dialog" aria-modal="true" aria-labelledby="help-title">
+    <div class="modal wide">
+      <p class="modal-kicker">FIELD MANUAL</p>
+      <h2 id="help-title">How to Play</h2>
+      <div class="help-grid">
+        <div>
+          <h3>Move</h3>
+          <p><b>WASD</b> / arrow keys, or the joystick on touch.</p>
+        </div>
+        <div>
+          <h3>Fight</h3>
+          <p>Kaito attacks the nearest enemy automatically. Focus on positioning.</p>
+        </div>
+        <div>
+          <h3>Skills</h3>
+          <p><b>Space</b> dash. <b>1–4</b> techniques. Skills unlock at levels 2, 4, 6, and 10.</p>
+        </div>
+        <div>
+          <h3>Grow</h3>
+          <p>Kills give XP and coins. Level up to open new areas. Spend coins in the shop and skill points in Techniques.</p>
+        </div>
+        <div>
+          <h3>Evolve</h3>
+          <p>At level 10, choose Thunder Assassin or Wind Dancer.</p>
+        </div>
+        <div>
+          <h3>Survive</h3>
+          <p>Clear three waves and defeat the zone boss. Death returns you to the dojo with your rewards.</p>
+        </div>
+      </div>
+      <button id="btn-help-close" class="primary">Understood</button>
+    </div>
+  </div>
+
+  <div id="toasts" aria-live="polite"></div>
+
+  <div id="level-banner" class="hidden" aria-hidden="true">
+    <span>LEVEL UP</span>
+    <b id="level-banner-level">2</b>
+  </div>
+</div>
+
+<script type="module" src="src/game.js"></script>
+</body>
+</html>
