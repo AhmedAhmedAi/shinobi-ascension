@@ -22,7 +22,7 @@ from disk will not work.
 
 | Action | Input |
 |---|---|
-| Move | WASD / arrow keys, or the touch joystick |
+| Move | WASD / arrow keys, or drag anywhere on screen (touch) |
 | Auto-attack | automatic (nearest enemy) |
 | Dash | Space |
 | Spark Bolt | 1 |

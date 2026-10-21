@@ -35,10 +35,11 @@ let saveTimer = 0;
 let bannerTimer = 0;
 let levelTimer = 0;
 let frameCount = 0;
+let touchHintSeen = false;
 
 const bgCache = new Map();
 const hudCache = new Map();
-const joystick = { x: 0, y: 0, active: false, id: null };
+const joystick = { x: 0, y: 0, active: false, id: null, originX: 0, originY: 0 };
 
 /* ============================================================
    STATE
@@ -235,7 +236,41 @@ function setHudVisible(visible) {
   const hud = $('hud');
   hud.classList.toggle('hidden', !visible);
   hud.setAttribute('aria-hidden', String(!visible));
-  if (visible) updateTouchUI();
+  updateTouchUI();
+}
+
+function resetJoystick() {
+  joystick.active = false;
+  joystick.id = null;
+  joystick.x = 0;
+  joystick.y = 0;
+  const knob = $('stick-knob');
+  if (knob) knob.style.transform = '';
+  const el = $('joystick');
+  if (el) el.classList.add('hidden');
+}
+
+function updateTouchUI() {
+  const coarse = !!(window.matchMedia && window.matchMedia('(pointer: coarse)').matches);
+  const active = coarse && scene === 'run' && !paused && !!run && !run.over;
+  const layer = $('touch-layer');
+  if (layer) layer.classList.toggle('hidden', !active);
+  if (!active) resetJoystick();
+}
+
+function showTouchHint() {
+  if (touchHintSeen) return;
+  if (!(window.matchMedia && window.matchMedia('(pointer: coarse)').matches)) return;
+  touchHintSeen = true;
+  const el = $('touch-hint');
+  if (!el) return;
+  el.classList.remove('hidden');
+  setTimeout(() => el.classList.add('hidden'), 3800);
+}
+
+function hideTouchHint() {
+  const el = $('touch-hint');
+  if (el) el.classList.add('hidden');
 }
 
 function toast(html, kind = '', icon = '') {
@@ -268,11 +303,6 @@ function showLevelBanner(level) {
   el.classList.remove('hidden');
   clearTimeout(levelTimer);
   levelTimer = setTimeout(() => el.classList.add('hidden'), 1800);
-}
-
-function updateTouchUI() {
-  const coarse = window.matchMedia && window.matchMedia('(pointer: coarse)').matches;
-  $('joystick').classList.toggle('hidden', !coarse);
 }
 
 /* ============================================================
@@ -735,6 +765,7 @@ function startRun(zoneId) {
 
   buildSkillBar();
   updateTouchUI();
+  showTouchHint();
 
   camera.x = camAxis(p.x, view.w, WORLD.w);
   camera.y = camAxis(p.y, view.h, WORLD.h);
@@ -1109,6 +1140,7 @@ function finishRun(victory) {
   run.over = true;
   run.victory = !!victory;
   run.endDelay = victory ? 1.15 : 0.9;
+  updateTouchUI();
 
   state.stats.runs++;
   state.stats.bestCombo = Math.max(state.stats.bestCombo, run.maxCombo);
@@ -2901,6 +2933,7 @@ function showResult() {
 function pauseGame() {
   if (scene !== 'run' || !run || run.over || paused) return;
   paused = true;
+  updateTouchUI();
   $('pause-overlay').classList.remove('hidden');
   audio.ui();
 }
@@ -2912,6 +2945,7 @@ function hidePause() {
 
 function resumeGame() {
   hidePause();
+  updateTouchUI();
   lastTime = performance.now();
   audio.ui();
 }
@@ -2981,44 +3015,68 @@ function setupInput() {
     keys.delete(e.code);
   });
 
-  window.addEventListener('blur', () => keys.clear());
+  window.addEventListener('blur', () => {
+    keys.clear();
+    resetJoystick();
+  });
 
-  const joyEl = $('joystick');
+  const layer = $('touch-layer');
   const knob = $('stick-knob');
+  const stick = $('joystick');
+  const MAX_STICK = 54;
 
-  function moveStick(ev) {
-    const r = joyEl.getBoundingClientRect();
-    const cx = r.left + r.width / 2;
-    const cy = r.top + r.height / 2;
-    let dx = (ev.clientX - cx) / (r.width * 0.34);
-    let dy = (ev.clientY - cy) / (r.height * 0.34);
-    const len = Math.hypot(dx, dy);
-    if (len > 1) { dx /= len; dy /= len; }
-    joystick.x = dx;
-    joystick.y = dy;
-    knob.style.transform = `translate(${dx * 34}px, ${dy * 34}px)`;
+  function placeStick(x, y) {
+    if (!stick) return;
+    stick.style.left = `${x}px`;
+    stick.style.top = `${y}px`;
+    stick.classList.remove('hidden');
   }
 
-  joyEl.addEventListener('pointerdown', (e) => {
+  function moveStick(clientX, clientY) {
+    let dx = clientX - joystick.originX;
+    let dy = clientY - joystick.originY;
+    const len = Math.hypot(dx, dy);
+    const clamped = Math.min(len, MAX_STICK);
+    if (len > 0.001) { dx /= len; dy /= len; } else { dx = 0; dy = 0; }
+    joystick.x = dx * (clamped / MAX_STICK);
+    joystick.y = dy * (clamped / MAX_STICK);
+    if (knob) knob.style.transform = `translate(${dx * clamped}px, ${dy * clamped}px)`;
+  }
+
+  layer.addEventListener('pointerdown', (e) => {
+    if (scene !== 'run' || paused || !run || run.over) return;
+    if (joystick.active) return;
     e.preventDefault();
+    hideTouchHint();
     joystick.active = true;
     joystick.id = e.pointerId;
-    joyEl.setPointerCapture(e.pointerId);
-    moveStick(e);
-  });
-  joyEl.addEventListener('pointermove', (e) => {
-    if (joystick.active && e.pointerId === joystick.id) moveStick(e);
-  });
-  const endStick = (e) => {
-    if (e.pointerId !== joystick.id) return;
-    joystick.active = false;
-    joystick.id = null;
+    joystick.originX = e.clientX;
+    joystick.originY = e.clientY;
     joystick.x = 0;
     joystick.y = 0;
-    knob.style.transform = '';
+    placeStick(e.clientX, e.clientY);
+    if (knob) knob.style.transform = '';
+    try {
+      layer.setPointerCapture(e.pointerId);
+    } catch (err) {
+      // Synthetic pointer events and older browsers cannot capture.
+    }
+  });
+
+  layer.addEventListener('pointermove', (e) => {
+    if (!joystick.active || e.pointerId !== joystick.id) return;
+    e.preventDefault();
+    moveStick(e.clientX, e.clientY);
+  });
+
+  const endStick = (e) => {
+    if (!joystick.active || e.pointerId !== joystick.id) return;
+    resetJoystick();
   };
-  joyEl.addEventListener('pointerup', endStick);
-  joyEl.addEventListener('pointercancel', endStick);
+
+  layer.addEventListener('pointerup', endStick);
+  layer.addEventListener('pointercancel', endStick);
+  layer.addEventListener('lostpointercapture', () => resetJoystick());
 
   $('skill-bar').addEventListener('pointerdown', (e) => {
     const btn = e.target.closest('[data-skill]');

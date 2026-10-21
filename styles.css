@@ -1376,7 +1376,21 @@ h1, h2, h3, p { margin: 0; }
   padding: max(12px, env(safe-area-inset-top)) max(12px, env(safe-area-inset-right)) max(12px, env(safe-area-inset-bottom)) max(12px, env(safe-area-inset-left));
 }
 
-#hud > * { pointer-events: auto; }
+#hud > * { pointer-events: none; }
+
+#btn-pause,
+.skill-btn {
+  pointer-events: auto;
+}
+
+#touch-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 15;
+  touch-action: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
 
 #hud::before {
   content: "";
@@ -1684,13 +1698,21 @@ h1, h2, h3, p { margin: 0; }
 /* ============================ JOYSTICK ============================ */
 
 #joystick {
-  position: absolute;
-  left: max(16px, env(safe-area-inset-left));
-  bottom: max(16px, env(safe-area-inset-bottom));
+  position: fixed;
+  left: 0;
+  top: 0;
   width: 124px;
   height: 124px;
-  pointer-events: auto;
+  margin: -62px 0 0 -62px;
+  pointer-events: none;
   touch-action: none;
+  z-index: 16;
+  animation: joy-in 0.14s ease both;
+}
+
+@keyframes joy-in {
+  from { opacity: 0; transform: scale(0.84); }
+  to { opacity: 1; transform: scale(1); }
 }
 
 .stick-base {
@@ -1725,6 +1747,30 @@ h1, h2, h3, p { margin: 0; }
   background: radial-gradient(circle at 40% 35%, rgba(57, 215, 255, 0.35), rgba(9, 30, 42, 0.9) 70%);
   box-shadow: 0 0 20px rgba(57, 215, 255, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.18);
   transition: transform 0.06s linear;
+}
+
+#touch-hint {
+  position: absolute;
+  left: 50%;
+  bottom: calc(154px + env(safe-area-inset-bottom));
+  transform: translateX(-50%);
+  padding: 8px 13px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: rgba(5, 12, 18, 0.78);
+  color: rgba(233, 245, 255, 0.8);
+  font-size: 9px;
+  letter-spacing: 0.2em;
+  font-weight: 800;
+  white-space: nowrap;
+  pointer-events: none;
+  backdrop-filter: blur(6px);
+  animation: hint-in 0.3s ease both;
+}
+
+@keyframes hint-in {
+  from { opacity: 0; transform: translate(-50%, 6px); }
+  to { opacity: 1; transform: translate(-50%, 0); }
 }
 
 /* ============================ OVERLAYS ============================ */

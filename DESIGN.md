@@ -109,7 +109,7 @@ TITLE
 
 | Action | Desktop | Mobile |
 |---|---|---|
-| Move | WASD / arrow keys | virtual joystick (left) |
+| Move | WASD / arrow keys | drag anywhere on screen |
 | Attack | automatic (nearest target) | automatic |
 | Dash | Space | dash button |
 | Skill 1 | 1 | button |
@@ -120,6 +120,10 @@ TITLE
 
 Auto-attack is intentional: it keeps the game playable with one thumb and removes
 aiming frustration on small screens. Skill shots auto-target the nearest enemy.
+
+On touch, the joystick spawns **wherever the player presses** and follows the thumb,
+so the entire play area is a control surface. The skill and pause buttons stay
+tappable on top of it.
 
 ---
 
