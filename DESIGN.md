@@ -1,5 +1,5 @@
 # SHINOBI ASCENSION
-### Game Design Document — v0.1 (vertical slice)
+### Game Design Document — v0.2 (vertical slice)
 
 **Genre:** top-down action RPG / arena fighter
 **Platform:** YouTube Playables (HTML5), mobile + desktop
@@ -548,7 +548,8 @@ updates (new skills, new zones).
 **In:**
 
 - Kaito, 5 active skills + 1 passive, 2 evolutions.
-- 5 zones, 5 bosses, 10 enemy types.
+- 5 zones, 5 bosses, 18 enemy types, 8 enemy abilities.
+- Between-wave shop, skills, heal, and next-wave flow.
 - XP, levels, skill points, auto-unlocks.
 - Shop with 4 attributes.
 - Map with level gates.
